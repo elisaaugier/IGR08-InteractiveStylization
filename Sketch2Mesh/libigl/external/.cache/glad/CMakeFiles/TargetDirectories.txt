@@ -1,0 +1,3 @@
+C:/Users/augie/OneDrive/Bureau/IGR/IGR08/IGR08-InteractiveStylization/Sketch2Mesh/libigl/external/.cache/glad/CMakeFiles/glad-download.dir
+C:/Users/augie/OneDrive/Bureau/IGR/IGR08/IGR08-InteractiveStylization/Sketch2Mesh/libigl/external/.cache/glad/CMakeFiles/edit_cache.dir
+C:/Users/augie/OneDrive/Bureau/IGR/IGR08/IGR08-InteractiveStylization/Sketch2Mesh/libigl/external/.cache/glad/CMakeFiles/rebuild_cache.dir

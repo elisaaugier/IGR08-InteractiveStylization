@@ -1,0 +1,11 @@
+{
+	"InstallScripts" : 
+	[
+		"C:/Users/augie/OneDrive/Bureau/IGR/IGR08/IGR08-InteractiveStylization/Sketch2Mesh/build/cmake_install.cmake",
+		"C:/Users/augie/OneDrive/Bureau/IGR/IGR08/IGR08-InteractiveStylization/Sketch2Mesh/build/glad/cmake_install.cmake",
+		"C:/Users/augie/OneDrive/Bureau/IGR/IGR08/IGR08-InteractiveStylization/Sketch2Mesh/build/glfw/cmake_install.cmake",
+		"C:/Users/augie/OneDrive/Bureau/IGR/IGR08/IGR08-InteractiveStylization/Sketch2Mesh/build/glfw/src/cmake_install.cmake",
+		"C:/Users/augie/OneDrive/Bureau/IGR/IGR08/IGR08-InteractiveStylization/Sketch2Mesh/build/imgui/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

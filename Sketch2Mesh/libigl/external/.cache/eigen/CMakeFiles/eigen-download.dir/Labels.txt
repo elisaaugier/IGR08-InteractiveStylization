@@ -1,0 +1,14 @@
+# Target labels
+ eigen-download
+# Source files and their labels
+C:/Users/augie/OneDrive/Bureau/IGR/IGR08/IGR08-InteractiveStylization/Sketch2Mesh/libigl/external/.cache/eigen/CMakeFiles/eigen-download
+C:/Users/augie/OneDrive/Bureau/IGR/IGR08/IGR08-InteractiveStylization/Sketch2Mesh/libigl/external/.cache/eigen/CMakeFiles/eigen-download.rule
+C:/Users/augie/OneDrive/Bureau/IGR/IGR08/IGR08-InteractiveStylization/Sketch2Mesh/libigl/external/.cache/eigen/CMakeFiles/eigen-download-complete.rule
+C:/Users/augie/OneDrive/Bureau/IGR/IGR08/IGR08-InteractiveStylization/Sketch2Mesh/libigl/external/.cache/eigen/eigen-download-prefix/src/eigen-download-stamp/eigen-download-build.rule
+C:/Users/augie/OneDrive/Bureau/IGR/IGR08/IGR08-InteractiveStylization/Sketch2Mesh/libigl/external/.cache/eigen/eigen-download-prefix/src/eigen-download-stamp/eigen-download-configure.rule
+C:/Users/augie/OneDrive/Bureau/IGR/IGR08/IGR08-InteractiveStylization/Sketch2Mesh/libigl/external/.cache/eigen/eigen-download-prefix/src/eigen-download-stamp/eigen-download-download.rule
+C:/Users/augie/OneDrive/Bureau/IGR/IGR08/IGR08-InteractiveStylization/Sketch2Mesh/libigl/external/.cache/eigen/eigen-download-prefix/src/eigen-download-stamp/eigen-download-install.rule
+C:/Users/augie/OneDrive/Bureau/IGR/IGR08/IGR08-InteractiveStylization/Sketch2Mesh/libigl/external/.cache/eigen/eigen-download-prefix/src/eigen-download-stamp/eigen-download-mkdir.rule
+C:/Users/augie/OneDrive/Bureau/IGR/IGR08/IGR08-InteractiveStylization/Sketch2Mesh/libigl/external/.cache/eigen/eigen-download-prefix/src/eigen-download-stamp/eigen-download-patch.rule
+C:/Users/augie/OneDrive/Bureau/IGR/IGR08/IGR08-InteractiveStylization/Sketch2Mesh/libigl/external/.cache/eigen/eigen-download-prefix/src/eigen-download-stamp/eigen-download-test.rule
+C:/Users/augie/OneDrive/Bureau/IGR/IGR08/IGR08-InteractiveStylization/Sketch2Mesh/libigl/external/.cache/eigen/eigen-download-prefix/src/eigen-download-stamp/eigen-download-update.rule
