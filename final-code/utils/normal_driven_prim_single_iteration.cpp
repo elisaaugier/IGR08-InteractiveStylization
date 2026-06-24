@@ -128,13 +128,36 @@ void normal_driven_prim_single_iteration(
         MatrixXd RAllT = RAll.transpose();
         Map<const VectorXd> Rcol(RAllT.data(), RAllT.size());
         VectorXd Bcol = data.K.transpose() * Rcol;
+        Eigen::MatrixXd Vsdf;
+        Vsdf.resize(U.rows(), U.cols());
+        data.SDF.computeSdfVector3(U, Vsdf);
+        MatrixXd P = Vsdf;
+        VectorXd VsdfCol;
+        VsdfCol.resize(U.rows() * 3, 1);
+        for (int i=0; i<U.rows(); i++) {
+            VsdfCol(i) = P(i, 0);
+            VsdfCol(i + 1 * U.rows()) = P(i, 1);
+            VsdfCol(i + 2 * U.rows()) = P(i, 2);
+        }
+        VectorXd PP;
+        PP.resize(U.rows() * 3, 1);
+        for (int i=0; i<U.rows(); i++) {
+            PP(i) = P(i, 0);
+            PP(i + 1 * U.rows()) = U(i, 1);
+            PP(i + 2 * U.rows()) = U(i, 2);
+        }
+
         for(int dim=0; dim<U.cols(); dim++)
         {
-            VectorXd Uc,Bc,bcc;
+            VectorXd Uc,Bc,bcc, Vc, Pc;
             Bc = Bcol.block(dim*nV,0,nV,1);
+            Vc = VsdfCol.block(dim*U.rows(),0,U.rows(),1);
+            Pc = PP.block(dim*U.rows(),0,U.rows(),1);
             bcc = data.bc.col(dim);
+            //min_quad_with_fixed_solve(
+            //    data.solver_data,Bc,bcc,VectorXd(),Uc);
             min_quad_with_fixed_solve(
-                data.solver_data,Bc,bcc,VectorXd(),Uc);
+                data.solver_data,Bc + data.gamma * Vc,VectorXd(),VectorXd(),Uc);
             U.col(dim) = Uc;
         }
     }

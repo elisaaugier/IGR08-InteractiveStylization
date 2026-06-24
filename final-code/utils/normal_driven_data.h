@@ -5,6 +5,7 @@
 #include <Eigen/Sparse>
 #include <limits>
 #include <igl/min_quad_with_fixed.h>
+#include "sdf.h"
 
 struct target_style
 {
@@ -36,6 +37,7 @@ struct normal_driven_data
 	bool useScale = false;
 
 	std::vector<target_style> styles_list;
+	std::vector<std::shared_ptr<Primitive>> primitive_list;
 
 	std::vector<double> objHis;
 	std::vector<Eigen::MatrixXi> E_N;
@@ -51,6 +53,9 @@ struct normal_driven_data
 	Eigen::MatrixXd bc;
 	Eigen::VectorXi b;
 	Eigen::MatrixXi AF;
+
+	double gamma = 0.05;
+	SDF SDF;
 
 	igl::min_quad_with_fixed_data<double> solver_data;
 

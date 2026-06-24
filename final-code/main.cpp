@@ -146,12 +146,14 @@ int main(int argc, char *argv[])
     target_style style1 = load_geometric_style(
         "cone", "cone.obj", RowVector3d(0.0, 0.5, 0.65), 1.0, 0.5, 2.0
     );
-    styles_list.push_back(style1);
+
 
     target_style style2 = load_geometric_style(
         "cube", "cube.obj", RowVector3d(0.0, -0.5, 0.5), 1.0, 0.5, 2.0
     );
+
     styles_list.push_back(style2);
+    styles_list.push_back(style1);
 
     cout << "Loaded " << styles_list.size() << " geometric styles." << endl;
     cout << "Target geometric styles:" << endl;
@@ -179,10 +181,31 @@ int main(int argc, char *argv[])
     // data.lambda = 1e0;
     data.styles_list = styles_list;
 
+    data.SDF.addPrimitive(std::make_unique<Box>(RowVector3d(0.4, 0.3, 0.3), RowVector3d(0.0, -0.5, 0.5)));
+    //data.SDF.addPrimitive(std::make_unique<Box>(RowVector3d(0.7 ,0.7 ,0.7), RowVector3d(0.0, -1.5, 1.5)));
+    //data.SDF.addPrimitive(std::make_unique<Sphere>(0.7, Eigen::RowVector3d(0.0, 0.0, 0.0)));
+    data.SDF.addPrimitive(std::make_unique<Sphere>(0.4, RowVector3d(0.0, 0.5, 0.65)));
+
     // initialize viewer
     igl::opengl::glfw::Viewer viewer;
     igl::opengl::glfw::imgui::ImGuiMenu menu;
 	viewer.plugins.push_back(&menu);
+
+    MatrixXd Vsdf;
+    MatrixXi Fsdf;
+
+    auto sdfId = viewer.append_mesh();
+    data.SDF.getMesh(Vsdf, Fsdf);
+    viewer.data(sdfId).clear();
+    viewer.data(sdfId).set_mesh(Vsdf, Fsdf);
+    viewer.data(sdfId).compute_normals();
+    Eigen::MatrixXd C(Fsdf.rows(), 4);
+    C.col(0).setConstant(0.8);  // R
+    C.col(1).setConstant(0.0);  // G
+    C.col(2).setConstant(0.8);  // B
+    C.col(3).setConstant(0.3);  // alpha
+
+    viewer.data(sdfId).set_colors(C);
 
     // rotation parameters
     double theta_x = 10.0; 
@@ -289,7 +312,12 @@ int main(int argc, char *argv[])
                     if (ImGuizmo::Manipulate(view.data(), proj.data(), current_operation, ImGuizmo::LOCAL, model.data()))
                     {
                         Eigen::Vector3f new_center = model.block<3,1>(0,3);
-                        tStyle.center = new_center.cast<double>().transpose();
+                        Eigen::Vector3d new_pos = new_center.cast<double>();
+                        tStyle.center = new_pos.transpose();
+                        data.SDF.setRuntimeTransform(i, new_pos, Eigen::Matrix3d::Identity(), Eigen::Vector3d::Ones());
+                        data.SDF.getMesh(Vsdf, Fsdf);
+                        viewer.data(sdfId).set_mesh(Vsdf, Fsdf);
+                        viewer.data(sdfId).compute_normals();
                         
                         if (current_operation == ImGuizmo::SCALE) {
                             tStyle.radius = (model(0,0) + model(1,1) + model(2,2)) / 3.0;
@@ -320,6 +348,7 @@ int main(int argc, char *argv[])
         {
             ImGui::PushItemWidth(-80);
             ImGui::DragScalar("lambda", ImGuiDataType_Double, &data.styles_list[0].lambda, 5e-1, 0, 0, "%.1e");
+		    ImGui::DragScalar("gamma", ImGuiDataType_Double, &data.gamma, 5e-2, 0, 0, "%.1e");
             ImGui::PopItemWidth();
         }
         {
@@ -963,8 +992,9 @@ int main(int argc, char *argv[])
     // default mode: keep drawing the current mesh
     viewer.callback_pre_draw = [&](igl::opengl::glfw::Viewer &)->bool
     {
+        draw();
         if(viewer.core().is_animating &&!state.place_constraints)
-            draw();
+            //draw();
         return false;
     };
 
