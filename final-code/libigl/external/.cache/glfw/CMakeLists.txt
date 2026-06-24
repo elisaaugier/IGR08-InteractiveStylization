@@ -8,8 +8,8 @@ project(glfw-download NONE)
 include(ExternalProject)
 ExternalProject_Add(glfw-download
                     TLS_VERIFY;OFF;GIT_CONFIG;advice.detachedHead=false;GIT_REPOSITORY;https://github.com/glfw/glfw.git;GIT_TAG;3.3
-                    SOURCE_DIR          "C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/cmake/../external/glfw"
-                    BINARY_DIR          "C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/build/glfw-build"
+                    SOURCE_DIR          "C:/Users/jbcou/Documents/IG08/IGR08-InteractiveStylization/final-code/libigl/cmake/../external/glfw"
+                    BINARY_DIR          "C:/Users/jbcou/Documents/IG08/IGR08-InteractiveStylization/final-code/cmake-build-debug/glfw-build"
                     CONFIGURE_COMMAND   ""
                     BUILD_COMMAND       ""
                     INSTALL_COMMAND     ""

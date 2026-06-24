@@ -8,8 +8,8 @@ project(glad-download NONE)
 include(ExternalProject)
 ExternalProject_Add(glad-download
                     TLS_VERIFY;OFF;GIT_CONFIG;advice.detachedHead=false;GIT_REPOSITORY;https://github.com/libigl/libigl-glad.git;GIT_TAG;09b4969c56779f7ddf8e6176ec1873184aec890f
-                    SOURCE_DIR          "C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/cmake/../external/glad"
-                    BINARY_DIR          "C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/build/glad-build"
+                    SOURCE_DIR          "C:/Users/jbcou/Documents/IG08/IGR08-InteractiveStylization/final-code/libigl/cmake/../external/glad"
+                    BINARY_DIR          "C:/Users/jbcou/Documents/IG08/IGR08-InteractiveStylization/final-code/cmake-build-debug/glad-build"
                     CONFIGURE_COMMAND   ""
                     BUILD_COMMAND       ""
                     INSTALL_COMMAND     ""

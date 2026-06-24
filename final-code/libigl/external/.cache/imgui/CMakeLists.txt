@@ -8,8 +8,8 @@ project(imgui-download NONE)
 include(ExternalProject)
 ExternalProject_Add(imgui-download
                     TLS_VERIFY;OFF;GIT_CONFIG;advice.detachedHead=false;GIT_REPOSITORY;https://github.com/ocornut/imgui.git;GIT_TAG;v1.69
-                    SOURCE_DIR          "C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/cmake/../external/imgui"
-                    BINARY_DIR          "C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/build/imgui-build"
+                    SOURCE_DIR          "C:/Users/jbcou/Documents/IG08/IGR08-InteractiveStylization/final-code/libigl/cmake/../external/imgui"
+                    BINARY_DIR          "C:/Users/jbcou/Documents/IG08/IGR08-InteractiveStylization/final-code/cmake-build-debug/imgui-build"
                     CONFIGURE_COMMAND   ""
                     BUILD_COMMAND       ""
                     INSTALL_COMMAND     ""

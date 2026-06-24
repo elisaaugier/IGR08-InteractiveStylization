@@ -8,8 +8,8 @@ project(libigl-imgui-download NONE)
 include(ExternalProject)
 ExternalProject_Add(libigl-imgui-download
                     TLS_VERIFY;OFF;GIT_CONFIG;advice.detachedHead=false;GIT_REPOSITORY;https://github.com/libigl/libigl-imgui.git;GIT_TAG;07ecd3858acc71e70f0f9b2dea20a139bdddf8ae
-                    SOURCE_DIR          "C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/cmake/../external/libigl-imgui"
-                    BINARY_DIR          "C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/build/libigl-imgui-build"
+                    SOURCE_DIR          "C:/Users/jbcou/Documents/IG08/IGR08-InteractiveStylization/final-code/libigl/cmake/../external/libigl-imgui"
+                    BINARY_DIR          "C:/Users/jbcou/Documents/IG08/IGR08-InteractiveStylization/final-code/cmake-build-debug/libigl-imgui-build"
                     CONFIGURE_COMMAND   ""
                     BUILD_COMMAND       ""
                     INSTALL_COMMAND     ""
