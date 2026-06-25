@@ -2,6 +2,6 @@
 # The patch step will be re-executed if anything in this file changes.
 # No other meaning or use of this file is supported.
 
-command (connected)=C:/msys64/ucrt64/bin/cmake.exe;-Dcan_fetch=YES;-DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE;-P;C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/libigl-imgui/libigl-imgui-download-prefix/tmp/libigl-imgui-download-gitupdate.cmake
-command (disconnected)=C:/msys64/ucrt64/bin/cmake.exe;-Dcan_fetch=NO;-DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE;-P;C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/libigl-imgui/libigl-imgui-download-prefix/tmp/libigl-imgui-download-gitupdate.cmake
-work_dir=C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/cmake/../external/libigl-imgui
+command (connected)=C:/mingw64/bin/cmake.exe;-Dcan_fetch=YES;-DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE;-P;C:/Users/augie/OneDrive/Bureau/IGR/IGR08/IGR08-InteractiveStylization/final-code/libigl/external/.cache/libigl-imgui/libigl-imgui-download-prefix/tmp/libigl-imgui-download-gitupdate.cmake
+command (disconnected)=C:/mingw64/bin/cmake.exe;-Dcan_fetch=NO;-DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE;-P;C:/Users/augie/OneDrive/Bureau/IGR/IGR08/IGR08-InteractiveStylization/final-code/libigl/external/.cache/libigl-imgui/libigl-imgui-download-prefix/tmp/libigl-imgui-download-gitupdate.cmake
+work_dir=C:/Users/augie/OneDrive/Bureau/IGR/IGR08/IGR08-InteractiveStylization/final-code/libigl/cmake/../external/libigl-imgui

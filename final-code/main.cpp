@@ -18,8 +18,11 @@
 #include <normal_driven_prim_single_iteration.h>
 #include <get_bounding_box.h>
 #include <localAvgMat.h>
+#include <sketch2mesh_bridge.h>
 
 #include <ctime>
+#include <cmath>
+#include <filesystem>
 #include <vector>
 #include <iostream>
 #include <fstream>
@@ -33,6 +36,7 @@ struct Mode
 {
     Eigen::MatrixXd CV; // point constraint
     bool place_constraints = true;
+    bool show_base_mesh = false;
     int numCV = 0;
     Eigen::MatrixXi CV_row_col; 
 
@@ -44,7 +48,7 @@ struct Mode
     std::vector<Eigen::Vector2f> stroke_points;
 } state;
 
-// to run the code, type "./normalDriven_bin [input obj] [style obj]" (e.g., ./normalDriven_bin bunny.obj cube.obj)
+// Launch with no CLI argument: ./app.exe
 int main(int argc, char *argv[])
 {
 	using namespace Eigen;
@@ -58,20 +62,170 @@ int main(int argc, char *argv[])
 
     normal_driven_data data;
 
-    meshName = argv[1];
+    meshName = (argc > 1) ? argv[1] : "cow.obj";
 
     // read mesh files 
 
     string file = MESH_PATH + meshName;
-    igl::read_triangle_mesh(file, V, F);
+    if (!std::filesystem::exists(file))
+    {
+        cerr << "ERROR: input mesh not found: " << file << endl;
+        cerr << "Hint: try running from final-code/build or pass an explicit mesh name." << endl;
+        return 1;
+    }
+    if (!igl::read_triangle_mesh(file, V, F) || V.rows() == 0 || F.rows() == 0)
+    {
+        cerr << "ERROR: Failed to load input mesh: " << file << endl;
+        return 1;
+    }
     V = V.rowwise() - V.colwise().minCoeff();
     V /= V.maxCoeff();
     U = V;
     VO = V;
 
-    auto load_geometric_style = [&] (const std::string& name, const std::string& filename, RowVector3d center, double lambda, double radius, double falloff)
+    double spot_reference_diag = 1.0;
+    {
+        MatrixXd spotV;
+        MatrixXi spotF;
+        const string spotFile = string(MESH_PATH) + "spot.obj";
+        if (igl::read_triangle_mesh(spotFile, spotV, spotF) && spotV.rows() > 0)
+        {
+            const RowVector3d spotMin = spotV.colwise().minCoeff();
+            const RowVector3d spotMax = spotV.colwise().maxCoeff();
+            const double diag = (spotMax - spotMin).norm();
+            if (diag > 1e-8)
+            {
+                spot_reference_diag = diag;
+            }
+        }
+    }
+
+    auto normalize_mesh_to_spot = [&] (MatrixXd& meshV) {
+        if (meshV.rows() == 0)
+        {
+            return;
+        }
+
+        const RowVector3d vMin = meshV.colwise().minCoeff();
+        const RowVector3d vMax = meshV.colwise().maxCoeff();
+        const RowVector3d center = 0.5 * (vMin + vMax);
+        const double diag = (vMax - vMin).norm();
+
+        meshV = meshV.rowwise() - center;
+        if (diag > 1e-8)
+        {
+            meshV *= (spot_reference_diag / diag);
+        }
+    };
+
+    auto generate_pyramid_geometry = [&] (int sides, double baseRadius, double height, MatrixXd& Vp, MatrixXi& Fp) {
+        if (sides < 3)
+        {
+            sides = 3;
+        }
+
+        Vp.resize(sides + 1, 3);
+        for (int i = 0; i < sides; ++i)
+        {
+            const double angle = 2.0 * std::acos(-1.0) * static_cast<double>(i) / static_cast<double>(sides);
+            Vp(i, 0) = baseRadius * std::cos(angle);
+            Vp(i, 1) = baseRadius * std::sin(angle);
+            Vp(i, 2) = 0.0;
+        }
+        Vp(sides, 0) = 0.0;
+        Vp(sides, 1) = 0.0;
+        Vp(sides, 2) = height;
+
+        const int triangleCount = sides;
+        const int baseTriangles = std::max(1, sides - 2);
+        Fp.resize(triangleCount + baseTriangles, 3);
+
+        for (int i = 0; i < sides; ++i)
+        {
+            const int next = (i + 1) % sides;
+            Fp(i, 0) = i;
+            Fp(i, 1) = next;
+            Fp(i, 2) = sides;
+        }
+
+        for (int i = 0; i < baseTriangles; ++i)
+        {
+            Fp(triangleCount + i, 0) = 0;
+            Fp(triangleCount + i, 1) = i + 1;
+            Fp(triangleCount + i, 2) = i + 2;
+        }
+    };
+
+    auto update_pyramid_style = [&] (target_style& tStyle) {
+        if (!tStyle.is_pyramid)
+        {
+            return;
+        }
+
+        Eigen::Matrix3d orientation = tStyle.pyramidOrientation;
+        if (!orientation.allFinite() || std::abs(orientation.determinant()) < 1e-10)
+        {
+            orientation = Eigen::Matrix3d::Identity();
+        }
+        else
+        {
+            Eigen::Quaterniond q(orientation);
+            if (q.norm() > 1e-12)
+            {
+                q.normalize();
+                orientation = q.toRotationMatrix();
+            }
+            else
+            {
+                orientation = Eigen::Matrix3d::Identity();
+            }
+        }
+
+        Eigen::RowVector3d oldBaseCenter = Eigen::RowVector3d::Zero();
+        const int oldSides = std::min(std::max(3, tStyle.pyramidSides), std::max(0, static_cast<int>(tStyle.sV.rows()) - 1));
+        if (oldSides > 0 && tStyle.sV.rows() >= oldSides)
+        {
+            for (int i = 0; i < oldSides; ++i)
+            {
+                oldBaseCenter += tStyle.sV.row(i);
+            }
+            oldBaseCenter /= static_cast<double>(oldSides);
+        }
+
+        Eigen::MatrixXd Vp;
+        Eigen::MatrixXi Fp;
+        generate_pyramid_geometry(tStyle.pyramidSides, tStyle.pyramidBaseRadius, tStyle.pyramidHeight, Vp, Fp);
+
+        const Eigen::RowVector3d localCenter = Vp.colwise().mean();
+        Vp = Vp.rowwise() - localCenter;
+
+        for (int i = 0; i < Vp.rows(); ++i)
+        {
+            const Eigen::Vector3d p = Vp.row(i).transpose();
+            Vp.row(i) = (orientation * p).transpose();
+        }
+
+        Eigen::RowVector3d newBaseCenter = Eigen::RowVector3d::Zero();
+        const int newSides = std::max(3, tStyle.pyramidSides);
+        for (int i = 0; i < newSides; ++i)
+        {
+            newBaseCenter += Vp.row(i);
+        }
+        newBaseCenter /= static_cast<double>(newSides);
+
+        const Eigen::RowVector3d translation = oldBaseCenter - newBaseCenter;
+        tStyle.sV = Vp.rowwise() + translation;
+        tStyle.sF = Fp;
+        tStyle.pyramidOrientation = orientation;
+
+        MatrixXd sN;
+        MatrixXi useless1, useless2;
+        igl::per_face_normals(tStyle.sV, tStyle.sF, sN);
+        igl::unique_rows(sN, tStyle.desiredN, useless1, useless2);
+    };
+
+    auto load_geometric_style = [&] (const std::string& name, const std::string& filename, RowVector3d center, double lambda, double radius, double falloff, const RowVector3d& primitiveScale)
         -> target_style {
-        
         target_style tStyle;
         tStyle.name = name;
         tStyle.center = center;
@@ -83,12 +237,33 @@ int main(int argc, char *argv[])
         MatrixXd sN;
         MatrixXi useless1,useless2; 
 
-        igl::read_triangle_mesh(styleFile, tStyle.sV,tStyle.sF);
-        igl::per_face_normals(tStyle.sV, tStyle.sF, sN);
-        igl::unique_rows(sN, tStyle.desiredN, useless1, useless2);
+        if (filename.find("pyramid") != std::string::npos) {
+            tStyle.is_pyramid = true;
+            tStyle.pyramidSides = 5;
+            tStyle.pyramidBaseRadius = std::max(0.02, std::max(primitiveScale(0), primitiveScale(2)));
+            tStyle.pyramidHeight = std::max(0.02, 2.0 * primitiveScale(1));
+            tStyle.pyramidOrientation = Eigen::Matrix3d::Identity();
+            generate_pyramid_geometry(tStyle.pyramidSides, tStyle.pyramidBaseRadius, tStyle.pyramidHeight, tStyle.sV, tStyle.sF);
+            igl::per_face_normals(tStyle.sV, tStyle.sF, sN);
+            igl::unique_rows(sN, tStyle.desiredN, useless1, useless2);
 
-        if (filename.find("cube") != std::string::npos) {
-            std::shared_ptr<Primitive> prim_ptr = std::make_shared<Box>(RowVector3d(radius, radius, radius), center);
+            std::shared_ptr<Primitive> prim_ptr = std::make_shared<Box>(Eigen::RowVector3d(tStyle.pyramidBaseRadius, tStyle.pyramidHeight * 0.5, tStyle.pyramidBaseRadius), center);
+            tStyle.prim_sdf = prim_ptr;
+            data.SDF.addPrimitive(prim_ptr);
+        }
+        else if (!igl::read_triangle_mesh(styleFile, tStyle.sV,tStyle.sF) || tStyle.sV.rows() == 0 || tStyle.sF.rows() == 0)
+        {
+            cerr << "ERROR: Failed to load style mesh: " << styleFile << endl;
+            return target_style{};
+        }
+        else
+        {
+            normalize_mesh_to_spot(tStyle.sV);
+            igl::per_face_normals(tStyle.sV, tStyle.sF, sN);
+            igl::unique_rows(sN, tStyle.desiredN, useless1, useless2);
+
+            if (filename.find("cube") != std::string::npos) {
+            std::shared_ptr<Primitive> prim_ptr = std::make_shared<Box>(primitiveScale, center);
             tStyle.prim_sdf = prim_ptr;
             data.SDF.addPrimitive(prim_ptr);
         }
@@ -102,6 +277,7 @@ int main(int argc, char *argv[])
             tStyle.prim_sdf = prim_ptr;
             data.SDF.addPrimitive(prim_ptr);
         }
+        }
 
         return tStyle;
     };
@@ -109,22 +285,8 @@ int main(int argc, char *argv[])
     // a supprimer à la fin car utile que si formes dès l'initialiation ?
 
 
-    target_style style1 = load_geometric_style(
-        "cube", "cube.obj", RowVector3d(0.0, -0.5, 0.5), 1.0, 0.5, 2.0
-    );
-
-    target_style style2 = load_geometric_style(
-        "sphere", "sphere2.obj", RowVector3d(0.0, 1.0, 1.0), 1.0, 0.5, 2.0
-    );
-
-    data.styles_list.push_back(style1);
-    data.styles_list.push_back(style2);
-
     cout << "Loaded " << data.styles_list.size() << " geometric styles." << endl;
-    cout << "Target geometric styles:" << endl;
-    for (auto& prim : data.styles_list) {
-        cout << prim.name << endl;
-    }
+    cout << "Launching with mesh: " << file << endl;
     
     // get input output name
     // string tmp = styleMeshName;
@@ -162,7 +324,13 @@ int main(int argc, char *argv[])
     C.col(3).setConstant(0.3);  // alpha
 
     viewer.data(sdfId).set_colors(C);
+    viewer.data(sdfId).show_faces = false;
+    viewer.data(sdfId).show_lines = false;
     ImGuizmo::OPERATION current_operation = ImGuizmo::TRANSLATE;
+    sketch2mesh_bridge::Bridge sketchBridge;
+    sketchBridge.initialize(MESH_PATH);
+
+    static bool show_sdf_preview = false;
 
     // rotation parameters
     double theta_x = 10.0; 
@@ -188,18 +356,52 @@ int main(int argc, char *argv[])
     // adding dynamically target styles
     // ------------------------------------------------------------------------
 
+    auto build_style_vertices = [&] (const target_style& tStyle) -> MatrixXd {
+        MatrixXd Vstyle = tStyle.sV;
+        if (Vstyle.rows() == 0)
+        {
+            return Vstyle;
+        }
+
+        const RowVector3d baseCenter = Vstyle.colwise().mean();
+        Vstyle = Vstyle.rowwise() - baseCenter;
+
+        if (tStyle.prim_sdf)
+        {
+            const Eigen::Vector3d targetHalfExt = tStyle.prim_sdf->getScale();
+            const RowVector3d vmin = Vstyle.colwise().minCoeff();
+            const RowVector3d vmax = Vstyle.colwise().maxCoeff();
+            const RowVector3d baseHalfExt = 0.5 * (vmax - vmin);
+
+            const double fx = targetHalfExt(0) / std::max(1e-8, baseHalfExt(0));
+            const double fy = targetHalfExt(1) / std::max(1e-8, baseHalfExt(1));
+            const double fz = targetHalfExt(2) / std::max(1e-8, baseHalfExt(2));
+
+            Vstyle.col(0) *= fx;
+            Vstyle.col(1) *= fy;
+            Vstyle.col(2) *= fz;
+        }
+
+        Vstyle = Vstyle.rowwise() + tStyle.center;
+        return Vstyle;
+    };
+
+    const Eigen::RowVector4d kPrimitiveDefaultColor(0.65, 0.82, 1.00, 0.28);  // pale blue, slightly transparent
+    const Eigen::RowVector4d kPrimitiveSelectedColor(1.00, 0.95, 0.55, 0.35); // pale yellow, slightly transparent
+
+    auto apply_style_color = [&] (target_style& tStyle, bool selected) {
+        if (tStyle.viewer_id == -1)
+        {
+            return;
+        }
+        viewer.data(tStyle.viewer_id).set_colors(selected ? kPrimitiveSelectedColor : kPrimitiveDefaultColor);
+    };
+
     auto render_style = [&] (target_style& tStyle) {
         tStyle.viewer_id = viewer.append_mesh();
-        MatrixXd primitive_V = tStyle.sV;
-        if (tStyle.prim_sdf) {
-            Eigen::Vector3d scl = tStyle.prim_sdf->getScale();
-            primitive_V.col(0) *= scl(0);
-            primitive_V.col(1) *= scl(1);
-            primitive_V.col(2) *= scl(2);
-        }
-        primitive_V = primitive_V.rowwise() + tStyle.center;
+        MatrixXd primitive_V = build_style_vertices(tStyle);
         viewer.data(tStyle.viewer_id).set_mesh(primitive_V, tStyle.sF);
-        viewer.data(tStyle.viewer_id).set_colors(Eigen::RowVector4d(1.0, 1.0, 1.0, 0.4));
+        apply_style_color(tStyle, false);
         viewer.data(tStyle.viewer_id).show_lines = tStyle.is_visible; // display edges
         viewer.data(tStyle.viewer_id).show_faces = tStyle.is_visible;
     };
@@ -209,8 +411,7 @@ int main(int argc, char *argv[])
         viewer.data(tStyle.viewer_id).show_faces = tStyle.is_visible;
     };
 
-    auto add_new_style = [&] (const std::string& base_name, const std::string& filename) {
-
+    auto add_new_style = [&] (const std::string& base_name, const std::string& filename, RowVector3d center, double lambda, double radius, double falloff, const RowVector3d& primitiveScale = RowVector3d::Ones()) {
         // en considérant pr le moment que l'utilisateur peut pas renommer les noms des formes
         int count = 0;
         for (const auto& s : data.styles_list) {
@@ -221,10 +422,77 @@ int main(int argc, char *argv[])
         std::string unique_name = base_name + "_" + std::to_string(count);
 
         target_style new_style = load_geometric_style(
-            unique_name, filename, RowVector3d(0.0, 0.0, 0.0), 1., 1., 2.
+            unique_name, filename, center, lambda, radius, falloff, primitiveScale
         );
         render_style(new_style);
         data.styles_list.push_back(new_style);
+    };
+
+    auto refresh_style_mesh = [&] (target_style& tStyle) {
+        if (!tStyle.is_pyramid)
+        {
+            return build_style_vertices(tStyle);
+        }
+
+        update_pyramid_style(tStyle);
+        return tStyle.sV;
+    };
+
+    auto rebuild_sdf_view = [&]() {
+        data.SDF = SDF();
+        for (auto& tStyle : data.styles_list)
+        {
+            if (tStyle.prim_sdf)
+            {
+                data.SDF.addPrimitive(tStyle.prim_sdf);
+            }
+        }
+
+        data.SDF.getMesh(Vsdf, Fsdf);
+        viewer.data(sdfId).clear();
+        if (Vsdf.rows() > 0 && Fsdf.rows() > 0)
+        {
+            viewer.data(sdfId).set_mesh(Vsdf, Fsdf);
+            viewer.data(sdfId).compute_normals();
+            Eigen::MatrixXd Cnew(Fsdf.rows(), 4);
+            Cnew.col(0).setConstant(0.8);
+            Cnew.col(1).setConstant(0.0);
+            Cnew.col(2).setConstant(0.8);
+            Cnew.col(3).setConstant(0.3);
+            viewer.data(sdfId).set_colors(Cnew);
+        }
+        viewer.data(sdfId).show_faces = show_sdf_preview;
+        viewer.data(sdfId).show_lines = show_sdf_preview;
+    };
+
+    auto delete_selected_style = [&]() -> bool {
+        const int idx = state.selected_tstyle_idx;
+        if (idx < 0 || idx >= static_cast<int>(data.styles_list.size()))
+        {
+            return false;
+        }
+
+        const int removed_viewer_id = data.styles_list[idx].viewer_id;
+        if (removed_viewer_id >= 0 && removed_viewer_id < static_cast<int>(viewer.data_list.size()))
+        {
+            if (!viewer.erase_mesh(removed_viewer_id))
+            {
+                viewer.data(removed_viewer_id).clear();
+            }
+        }
+
+        data.styles_list.erase(data.styles_list.begin() + idx);
+        for (auto& tStyle : data.styles_list)
+        {
+            if (tStyle.viewer_id > removed_viewer_id)
+            {
+                tStyle.viewer_id -= 1;
+            }
+        }
+
+        state.selected_tstyle_idx = -1;
+        rebuild_sdf_view();
+        return true;
     };
 
     // draw additional windows
@@ -299,6 +567,8 @@ int main(int argc, char *argv[])
                         data.SDF.getMesh(Vsdf, Fsdf);
                         viewer.data(sdfId).set_mesh(Vsdf, Fsdf);
                         viewer.data(sdfId).compute_normals();
+                        viewer.data(sdfId).show_faces = show_sdf_preview;
+                        viewer.data(sdfId).show_lines = show_sdf_preview;
                         
                         if (current_operation == ImGuizmo::SCALE) {
                             // Update tracked scale and apply to SDF
@@ -316,16 +586,11 @@ int main(int argc, char *argv[])
                         data.SDF.getMesh(Vsdf, Fsdf);
                         viewer.data(sdfId).set_mesh(Vsdf, Fsdf);
                         viewer.data(sdfId).compute_normals();
+                        viewer.data(sdfId).show_faces = show_sdf_preview;
+                        viewer.data(sdfId).show_lines = show_sdf_preview;
 
                         if (tStyle.viewer_id != -1) {
-                            MatrixXd new_V = tStyle.sV;
-                            if (tStyle.prim_sdf) {
-                                Eigen::Vector3d scl = tStyle.prim_sdf->getScale();
-                                new_V.col(0) *= scl(0);
-                                new_V.col(1) *= scl(1);
-                                new_V.col(2) *= scl(2);
-                            }
-                            new_V = new_V.rowwise() + tStyle.center;
+                            MatrixXd new_V = build_style_vertices(tStyle);
                             viewer.data(tStyle.viewer_id).set_vertices(new_V);
                             // viewer.data(tStyle.viewer_id).clear();
                         }
@@ -349,8 +614,15 @@ int main(int argc, char *argv[])
         }
         {
             ImGui::PushItemWidth(-80);
-            ImGui::DragScalar("lambda", ImGuiDataType_Double, &data.styles_list[0].lambda, 5e-1, 0, 0, "%.1e");
-		    ImGui::DragScalar("gamma", ImGuiDataType_Double, &data.gamma, 5e-2, 0, 0, "%.1e");
+            if (!data.styles_list.empty())
+            {
+                ImGui::DragScalar("lambda", ImGuiDataType_Double, &data.styles_list[0].lambda, 5e-1, 0, 0, "%.1e");
+            }
+            else
+            {
+                ImGui::TextUnformatted("lambda: add a target style first");
+            }
+		    ImGui::DragScalar("gamma", ImGuiDataType_Double, &data.gamma, 1e-2, 0, 0, "%.3f");
             ImGui::PopItemWidth();
         }
         {
@@ -367,6 +639,50 @@ int main(int argc, char *argv[])
 		{
 			igl::writeOBJ("../output.obj", U, F);
 		}
+
+        ImGui::Separator();
+        sketchBridge.drawUi(viewer);
+
+        sketch2mesh_bridge::AddStyleRequest request;
+        if (sketchBridge.consumeRequest(request) && request.valid)
+        {
+            if (request.isBaseMesh)
+            {
+                // Load as the base deformable mesh (V/F).
+                const std::string meshFile = std::string(MESH_PATH) + request.filename;
+                Eigen::MatrixXd newV;
+                Eigen::MatrixXi newF;
+                if (igl::read_triangle_mesh(meshFile, newV, newF) && newV.rows() > 0 && newF.rows() > 0)
+                {
+                    newV = newV.rowwise() - newV.colwise().minCoeff();
+                    newV /= newV.maxCoeff();
+                    V = newV;
+                    F = newF;
+                    U = V;
+                    VO = V;
+                    data.V0 = V;  // keep V0 in sync so precomputation is valid
+                    data.b.resize(0);
+                    data.bc.resize(0, 3);
+                    state.CV = Eigen::MatrixXd();
+                    state.CV_row_col = Eigen::MatrixXi();
+                    state.CV_row_col.resize(100, 2);
+                    state.numCV = 0;
+                    state.place_constraints = true;
+                    state.show_base_mesh = true;
+                    // draw() called automatically on next frame
+                }
+            }
+            else
+            {
+                add_new_style(request.baseName,
+                              request.filename,
+                              request.center,
+                              request.lambda,
+                              request.radius,
+                              request.falloff,
+                              request.primitiveScale);
+            }
+        }
         ImGui::End();
 
 
@@ -375,8 +691,12 @@ int main(int argc, char *argv[])
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
         {
-            ImGui::SetNextWindowPos(ImVec2(0.f * menu.menu_scaling(), 520), ImGuiCond_Appearing);
-            // ImGui::SetNextWindowPos(ImVec2(viewer.core().viewport(2) - 320, 10), ImGuiCond_FirstUseEver);
+            // Anchor the layers window to the top-right corner of the viewport.
+            ImGui::SetNextWindowPos(
+                ImVec2(static_cast<float>(viewer.core().viewport(2) - 10), 10.0f),
+                ImGuiCond_Always,
+                ImVec2(1.0f, 0.0f)
+            );
 			ImGui::SetNextWindowSize(ImVec2(300, 400), ImGuiCond_FirstUseEver);
 			ImGui::Begin(
 				"Target-Styles Layers", nullptr,
@@ -391,10 +711,28 @@ int main(int argc, char *argv[])
                     }
                 }
             }
-            
+
             ImGui::Separator();
             ImGui::Text("Test");
             ImGui::Spacing();
+
+            if (state.selected_tstyle_idx >= 0 && state.selected_tstyle_idx < static_cast<int>(data.styles_list.size()))
+            {
+                ImGui::Text("Selected: %s", data.styles_list[state.selected_tstyle_idx].name.c_str());
+                if (ImGui::Button("Delete Selected Primitive", ImVec2(-1, 0)))
+                {
+                    delete_selected_style();
+                    ImGui::End();
+                    return;
+                }
+            }
+            else
+            {
+                ImGui::TextUnformatted("Selected: none");
+            }
+            ImGui::Separator();
+
+            int pending_delete_idx = -1;
 
             for (int i=0; i < data.styles_list.size(); i++) {
                 auto& tStyle = data.styles_list[i];
@@ -416,9 +754,15 @@ int main(int argc, char *argv[])
                 {
                     bool changed = false;
 
+                    if (ImGui::Button("Delete Primitive", ImVec2(-1, 0)))
+                    {
+                        pending_delete_idx = i;
+                    }
+                    ImGui::Separator();
+
                     // Sliders de Position
                     float center_f[3] = { (float)tStyle.center(0), (float)tStyle.center(1), (float)tStyle.center(2) };
-                    if (ImGui::DragFloat3("Position", center_f, 0.01f)) {
+                    if (ImGui::SliderFloat3("Position", center_f, -2.0f, 2.0f, "%.3f")) {
                         tStyle.center << center_f[0], center_f[1], center_f[2];
                         changed = true;
                         if (tStyle.prim_sdf) {
@@ -428,32 +772,107 @@ int main(int argc, char *argv[])
 
                     // Sliders de Paramètres
                     // if (ImGui::DragScalar("Rayon", ImGuiDataType_Double, &tStyle.prim_sdf->getScale(), 0.01f, 0, 0, "%.2f")) changed = true;
-                    if (tStyle.prim_sdf) 
+                    if (tStyle.prim_sdf)
                     {
-                        Eigen::Vector3d current_scale = tStyle.prim_sdf->getScale();
-                        double current_radius = (current_scale(0) + current_scale(1) + current_scale(2)) / 3.0;
-                        if (ImGui::DragScalar("Rayon", ImGuiDataType_Double, &current_radius, 0.01f, 0, 0, "%.2f")) 
+                        if (auto* sphere = dynamic_cast<Sphere*>(tStyle.prim_sdf.get()))
                         {
-                            changed = true;
-                            Eigen::Vector3d new_scale = Eigen::Vector3d::Constant(current_radius);
-                            tStyle.prim_sdf->setScale(new_scale);
-                            data.SDF.setScale(i, new_scale);
+                            double radius_value = sphere->getScale()(0);
+                            double radius_min = 0.02;
+                            double radius_max = 3.0;
+                            if (ImGui::SliderScalar("Rayon", ImGuiDataType_Double, &radius_value, &radius_min, &radius_max, "%.2f"))
+                            {
+                                changed = true;
+                                const Eigen::Vector3d new_scale = Eigen::Vector3d::Constant(std::max(0.02, radius_value));
+                                data.SDF.setScale(i, new_scale);
+                            }
+                        }
+                        else if (auto* box = dynamic_cast<Box*>(tStyle.prim_sdf.get()))
+                        {
+                            if (tStyle.is_pyramid)
+                            {
+                                double base_radius = tStyle.pyramidBaseRadius;
+                                double height = tStyle.pyramidHeight;
+
+                                double pyr_radius_min = 0.02;
+                                double pyr_radius_max = 3.0;
+                                if (ImGui::SliderScalar("Rayon base", ImGuiDataType_Double, &base_radius, &pyr_radius_min, &pyr_radius_max, "%.2f"))
+                                {
+                                    changed = true;
+                                    tStyle.pyramidBaseRadius = std::max(0.02, base_radius);
+                                }
+                                double pyr_height_min = 0.02;
+                                double pyr_height_max = 4.0;
+                                if (ImGui::SliderScalar("Hauteur", ImGuiDataType_Double, &height, &pyr_height_min, &pyr_height_max, "%.2f"))
+                                {
+                                    changed = true;
+                                    tStyle.pyramidHeight = std::max(0.02, height);
+                                }
+                            }
+                            else
+                            {
+                                Eigen::Vector3d current_scale = box->getScale();
+                                double length = 2.0 * current_scale(0);
+                                double width = 2.0 * current_scale(2);
+                                double height = 2.0 * current_scale(1);
+
+                                double dim_min = 0.02;
+                                double dim_max = 4.0;
+                                if (ImGui::SliderScalar("Longueur", ImGuiDataType_Double, &length, &dim_min, &dim_max, "%.2f"))
+                                {
+                                    changed = true;
+                                    current_scale(0) = std::max(0.02, 0.5 * length);
+                                }
+                                if (ImGui::SliderScalar("Largeur", ImGuiDataType_Double, &width, &dim_min, &dim_max, "%.2f"))
+                                {
+                                    changed = true;
+                                    current_scale(2) = std::max(0.02, 0.5 * width);
+                                }
+                                if (ImGui::SliderScalar("Hauteur", ImGuiDataType_Double, &height, &dim_min, &dim_max, "%.2f"))
+                                {
+                                    changed = true;
+                                    current_scale(1) = std::max(0.02, 0.5 * height);
+                                }
+
+                                if (changed)
+                                {
+                                    data.SDF.setScale(i, current_scale);
+                                }
+                            }
+
+                            if (tStyle.is_pyramid)
+                            {
+                                if (changed)
+                                {
+                                    if (tStyle.viewer_id != -1)
+                                    {
+                                        viewer.data(tStyle.viewer_id).set_mesh(tStyle.sV, tStyle.sF);
+                                    }
+                                    Eigen::Vector3d current_scale = Eigen::Vector3d(tStyle.pyramidBaseRadius,
+                                                                                   0.5 * tStyle.pyramidHeight,
+                                                                                   tStyle.pyramidBaseRadius);
+                                    data.SDF.setScale(i, current_scale);
+                                }
+                            }
                         }
                     }
-                    ImGui::DragScalar("Lambda (Force)", ImGuiDataType_Double, &tStyle.lambda, 0.05f, 0, 0, "%.2f");
-                    ImGui::DragScalar("Falloff", ImGuiDataType_Double, &tStyle.falloff, 0.05f, 0, 0, "%.2f");
+                    double style_lambda_min = 0.0;
+                    double style_lambda_max = 20.0;
+                    ImGui::SliderScalar("Lambda (Force)", ImGuiDataType_Double, &tStyle.lambda, &style_lambda_min, &style_lambda_max, "%.2f");
+                    double falloff_min = 0.0;
+                    double falloff_max = 10.0;
+                    ImGui::SliderScalar("Falloff", ImGuiDataType_Double, &tStyle.falloff, &falloff_min, &falloff_max, "%.2f");
 
                     // Mise à jour visuelle du mesh transparent si on bouge un slider (position/rayon)
                     if (changed && tStyle.is_visible && show_all_targets && tStyle.viewer_id != -1) {
-                        MatrixXd new_V = tStyle.sV;
-                        if (tStyle.prim_sdf) {
-                            Eigen::Vector3d scl = tStyle.prim_sdf->getScale();
-                            new_V.col(0) *= scl(0);
-                            new_V.col(1) *= scl(1);
-                            new_V.col(2) *= scl(2);
+                        if (tStyle.is_pyramid)
+                        {
+                            viewer.data(tStyle.viewer_id).set_mesh(tStyle.sV, tStyle.sF);
                         }
-                        new_V = new_V.rowwise() + tStyle.center;                       
-                        viewer.data(tStyle.viewer_id).set_vertices(new_V);
+                        else
+                        {
+                            MatrixXd new_V = build_style_vertices(tStyle);
+                            viewer.data(tStyle.viewer_id).set_vertices(new_V);
+                        }
                     }
 
                     ImGui::TreePop(); // Fin de l'accordéon
@@ -461,44 +880,22 @@ int main(int argc, char *argv[])
 
                 ImGui::PopID();
 
+                if (pending_delete_idx != -1)
+                {
+                    break;
+                }
+
+            }
+
+            if (pending_delete_idx != -1)
+            {
+                state.selected_tstyle_idx = pending_delete_idx;
+                delete_selected_style();
             }
             
         }
         ImGui::End();
 
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // ~~~~~~~~~~~~~~  W I N D O W   3  ~~~~~~~~~~~~~~
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-        {
-            ImGui::SetNextWindowPos(ImVec2(0.f * menu.menu_scaling(), 1340), ImGuiCond_Appearing);
-            // ImGui::SetNextWindowPos(ImVec2(viewer.core().viewport(2) - 320, 420), ImGuiCond_FirstUseEver);
-			ImGui::SetNextWindowSize(ImVec2(300, 400), ImGuiCond_FirstUseEver);
-			ImGui::Begin(
-				"Add a Target-Style", nullptr,
-				ImGuiWindowFlags_NoSavedSettings
-			);
-            ImGui::Text("Add a new target style");
-            ImGui::Separator();
-            ImGui::Checkbox("activate drawing mode", &state.drawing_mode);
-            ImGui::Spacing();
-            if (ImGui::Button("+ Ajouter un Cube", ImVec2(-1, 0))) {
-                add_new_style("cube", "cube.obj");
-            }
-
-            if (state.drawing_mode && state.stroke_points.size() > 1) {
-                ImDrawList* draw_list = ImGui::GetBackgroundDrawList();
-                for (size_t i = 0; i < state.stroke_points.size() - 1; ++i) {
-                    draw_list->AddLine(
-                        ImVec2(state.stroke_points[i].x(), state.stroke_points[i].y()),
-                        ImVec2(state.stroke_points[i+1].x(), state.stroke_points[i+1].y()),
-                        IM_COL32(255, 0, 0, 255), 3.0f 
-                    );
-                }
-            }
-
-        }
-        ImGui::End();
     };
 
     // recompute state.CV function
@@ -588,6 +985,11 @@ int main(int argc, char *argv[])
         viewer.data_list[0].face_based = true;
         viewer.data_list[0].show_lines = false;
 
+        if (!state.show_base_mesh)
+        {
+            return;
+        }
+
         if(state.place_constraints)
         // IDLE mode (NO deformation)
         {
@@ -596,9 +998,12 @@ int main(int argc, char *argv[])
             set_contraints_colors();
         }
         else
-        // OPTIMISATION mode (deformation)
-        { 
-            normal_driven_prim_single_iteration(F, U, data);
+        // OPTIMISATION mode (deformation) — only runs if there are target styles
+        {
+            if (!data.styles_list.empty())
+            {
+                normal_driven_prim_single_iteration(F, U, data);
+            }
             viewer.data_list[0].set_mesh(U, F);
             viewer.data_list[0].set_colors(blue);
             set_contraints_colors();
@@ -716,14 +1121,35 @@ int main(int argc, char *argv[])
                 }
                 break;
             }
+            case 'd':
+            case 'D':
+            case 8:   // ASCII Backspace (some backends)
+            case 127: // ASCII Delete (some backends)
+            case 261: // GLFW_KEY_DELETE
+            case 259: // GLFW_KEY_BACKSPACE
+            {
+                if (delete_selected_style())
+                {
+                    draw();
+                    return true;
+                }
+                break;
+            }
             case ' ':
             {
-                state.place_constraints = !state.place_constraints; // switch mode
-                if (state.place_constraints)
+                if (!state.show_base_mesh) break; // no mesh loaded yet
+                // Only toggle if there are styles to optimize against.
+                if (!state.place_constraints)
                 {
+                    // going back to idle: always allowed
+                    state.place_constraints = true;
                     resetCV();
                     draw();
+                    break;
                 }
+                // going into optimization: require at least one style
+                if (data.styles_list.empty()) break;
+                state.place_constraints = false;
                 if (!state.place_constraints && state.CV.rows()>0)
                 {
                     // set constrained points
@@ -811,12 +1237,13 @@ int main(int argc, char *argv[])
         //     }
         // }
 
-        // select a target style mesh
-        if (!state.drawing_mode && button==0) 
+        // select a target style mesh (disabled when Shift is held for drawing)
+        bool isShiftPressed = (modifier & 1); // GLFW_MOD_SHIFT = 1
+        if (!isShiftPressed && button==0)
         {
             if (state.selected_tstyle_idx != -1) {
                 auto& selected_tstyle = data.styles_list[state.selected_tstyle_idx];
-                viewer.data(selected_tstyle.viewer_id).set_colors(Eigen::RowVector4d(1.0, 1.0, 1.0, 0.4));
+                apply_style_color(selected_tstyle, false);
             }
             int closest_tstyle_idx = -1;
             double min_dist = 1e20;
@@ -826,14 +1253,8 @@ int main(int argc, char *argv[])
                 auto& tStyle = data.styles_list[i];
                 if (!tStyle.is_visible || tStyle.viewer_id == -1) continue;
                 
-                Eigen::MatrixXd tStyle_V = tStyle.sV;
-                if (tStyle.prim_sdf) {
-                    Eigen::Vector3d scl = tStyle.prim_sdf->getScale();
-                    tStyle_V.col(0) *= scl(0);
-                    tStyle_V.col(1) *= scl(1);
-                    tStyle_V.col(2) *= scl(2);
-                }
-                tStyle_V = tStyle_V.rowwise() + tStyle.center;                int fid;
+                Eigen::MatrixXd tStyle_V = build_style_vertices(tStyle);
+                int fid;
                 Vector3f bary;
 
                 if (igl::unproject_onto_mesh(Vector2f(x,y), viewer.core().view, viewer.core().proj, viewer.core().viewport, tStyle_V, tStyle.sF, fid, bary))
@@ -860,7 +1281,7 @@ int main(int argc, char *argv[])
             if (closest_tstyle_idx != -1) {
                 state.selected_tstyle_idx = closest_tstyle_idx;
                 auto& selected_tstyle = data.styles_list[closest_tstyle_idx];
-                viewer.data(selected_tstyle.viewer_id).set_colors(Eigen::RowVector4d(0.0, 0.0, 1.0, 0.4));
+                apply_style_color(selected_tstyle, true);
                 return true;
             }
             else {
@@ -868,8 +1289,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        // add/remove constraints (DISABLED by default - hacky fix to prevent blocking primitive selection)
-        if (!state.drawing_mode && state.place_constraints && button == 0 && false)
+        // add/remove constraints (only in idle mode, not when drawing or selecting primitives)
+        if (!sketchBridge.isDrawingMode() && state.place_constraints && button == 0)
         {
             if (state.hovered_constr_idx != -1)
             // constraint removal
@@ -911,12 +1332,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        // draw in 2D
-        if (state.drawing_mode && button==0) 
-        {
-            state.is_drawing = true;
-            state.stroke_points.clear();
-            state.stroke_points.push_back(Eigen::Vector2f(x, viewer.current_mouse_y));
+        // draw in 2D (only when Shift is held)
+        if (isShiftPressed && sketchBridge.onMouseDown(viewer, button)) {
             return true;
         }
 
@@ -925,10 +1342,11 @@ int main(int argc, char *argv[])
 
     viewer.callback_mouse_move = [&] (igl::opengl::glfw::Viewer&, int mouse_x, int mouse_y) -> bool 
     {
+        bool isShiftPressed = ImGui::GetIO().KeyShift;
         double x = viewer.current_mouse_x;
         double y = viewer.core().viewport(3) - viewer.current_mouse_y;
 
-        if (state.place_constraints && !state.drawing_mode) {
+        if (state.place_constraints && !isShiftPressed) {
 
             int old_hovered = state.hovered_constr_idx;
             state.hovered_constr_idx = -1;
@@ -955,8 +1373,7 @@ int main(int argc, char *argv[])
             if (state.hovered_constr_idx != old_hovered) draw();
         }
 
-        if (state.is_drawing) {
-            state.stroke_points.push_back(Eigen::Vector2f(x, viewer.current_mouse_y));
+        if (sketchBridge.onMouseMove(viewer)) {
             return true;
         }
         return false;
@@ -965,72 +1382,12 @@ int main(int argc, char *argv[])
 
     viewer.callback_mouse_up = [&](igl::opengl::glfw::Viewer&, int button, int modifier)->bool
     {
-
-        // test pour dessin 2D --> forme 3D (là c'est que pour reconnaissance d'une sphère)
-        if (state.is_drawing && button == 0) {
-            state.is_drawing = false;
-            
-            if (state.stroke_points.size() > 5) {
-                
-                float minX = 1e6, maxX = -1e6, minY = 1e6, maxY = -1e6;
-                for (auto& p : state.stroke_points) {
-                    if (p.x() < minX) minX = p.x(); if (p.x() > maxX) maxX = p.x();
-                    if (p.y() < minY) minY = p.y(); if (p.y() > maxY) maxY = p.y();
-                }
-                
-                float centerX = (minX + maxX) / 2.0f;
-                float centerY = (minY + maxY) / 2.0f;
-                
-                float y_bottom = viewer.core().viewport(3) - centerY;
-                
-                // ray casting
-                int fid; Eigen::Vector3f bary;
-                if(igl::unproject_onto_mesh(Eigen::Vector2f(centerX, y_bottom), viewer.core().view, viewer.core().proj, viewer.core().viewport, V, F, fid, bary)) 
-                {
-                    Eigen::RowVector3d pt3D = 
-                        bary(0) * V.row(F(fid, 0)) + 
-                        bary(1) * V.row(F(fid, 1)) + 
-                        bary(2) * V.row(F(fid, 2));
-                        
-                    double pixel_width = (maxX - minX);
-                    double radius3D = std::max(0.1, pixel_width / 1000.0); // Ratio très basique pour tester
-                    
-                    target_style new_cube = load_geometric_style(
-                        "Dessin_Cube_" + std::to_string(data.styles_list.size()), 
-                        "cube.obj", 
-                        pt3D,       
-                        1.0,      
-                        radius3D,  
-                        2.0         
-                    );
-                    
-                    new_cube.viewer_id = viewer.append_mesh();
-                    if (new_cube.sV.rows() > 0) {
-                        // MatrixXd primitive_V = (new_cube.sV * new_cube.radius).rowwise() + new_cube.center;
-                        MatrixXd primitive_V = new_cube.sV;
-                        if (new_cube.prim_sdf) {
-                            Eigen::Vector3d scl = new_cube.prim_sdf->getScale();
-                            primitive_V.col(0) *= scl(0);
-                            primitive_V.col(1) *= scl(1);
-                            primitive_V.col(2) *= scl(2);
-                        } else {
-                            // Fallback si la structure n'est pas encore totalement liée
-                            primitive_V = (new_cube.sV * new_cube.radius);
-                        }
-                        primitive_V = primitive_V.rowwise() + new_cube.center;
-                        viewer.data(new_cube.viewer_id).set_mesh(primitive_V, new_cube.sF);
-                        viewer.data(new_cube.viewer_id).set_colors(Eigen::RowVector4d(1.0, 0.2, 0.2, 0.5)); // Cube rouge transparent
-                        viewer.data(new_cube.viewer_id).show_lines = true;
-                    }
-                    
-                    data.styles_list.push_back(new_cube);
-                    std::cout << "Cube magique cree au point XYZ: " << pt3D << std::endl;
-                } else {
-                    std::cout << "Echec : vous avez dessine dans le vide, hors du maillage !" << std::endl;
-                }
+        bool isShiftPressed = ImGui::GetIO().KeyShift;
+        if (sketchBridge.onMouseUp(viewer, button, V, F)) {
+            sketch2mesh_bridge::AddStyleRequest request;
+            if (sketchBridge.consumeRequest(request) && request.valid) {
+                add_new_style(request.baseName, request.filename, request.center, request.lambda, request.radius, request.falloff, request.primitiveScale);
             }
-            
-            state.stroke_points.clear(); 
             return true;
         }
         return false;
@@ -1041,7 +1398,38 @@ int main(int argc, char *argv[])
     // default mode: keep drawing the current mesh
     viewer.callback_pre_draw = [&](igl::opengl::glfw::Viewer &)->bool
     {
+        ImGuiIO& io = ImGui::GetIO();
+        bool deletePressed = false;
+
+        // Newer ImGui key routing (backend-mapped keys)
+        deletePressed = deletePressed || ImGui::IsKeyPressed(ImGuiKey_Backspace);
+        deletePressed = deletePressed || ImGui::IsKeyPressed(ImGuiKey_Delete);
+
+        // Legacy/raw fallback for GLFW key codes.
+        bool deleteDownRaw = false;
+        if (259 >= 0 && 259 < IM_ARRAYSIZE(io.KeysDown)) // GLFW_KEY_BACKSPACE
+        {
+            deleteDownRaw = deleteDownRaw || io.KeysDown[259];
+        }
+        if (261 >= 0 && 261 < IM_ARRAYSIZE(io.KeysDown)) // GLFW_KEY_DELETE
+        {
+            deleteDownRaw = deleteDownRaw || io.KeysDown[261];
+        }
+
+        static bool deleteWasDownRaw = false;
+        const bool deleteEdgeRaw = deleteDownRaw && !deleteWasDownRaw;
+        deleteWasDownRaw = deleteDownRaw;
+
+        if ((deletePressed || deleteEdgeRaw) && !io.WantTextInput)
+        {
+            if (delete_selected_style())
+            {
+                draw();
+            }
+        }
+
         draw();
+        sketchBridge.drawOverlay();
         if(viewer.core().is_animating &&!state.place_constraints)
             //draw();
         return false;
@@ -1049,7 +1437,7 @@ int main(int argc, char *argv[])
 
     // initialize the scene
     {
-        viewer.data().set_mesh(V,F);
+        viewer.data().clear();
         viewer.data().show_lines = false;
         viewer.core().is_animating = true;
         viewer.data().face_based = true;

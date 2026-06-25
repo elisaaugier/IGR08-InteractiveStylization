@@ -8,8 +8,8 @@ project(eigen-download NONE)
 include(ExternalProject)
 ExternalProject_Add(eigen-download
                     TLS_VERIFY;OFF;GIT_CONFIG;advice.detachedHead=false;GIT_REPOSITORY;https://github.com/eigenteam/eigen-git-mirror.git;GIT_TAG;3.2.10
-                    SOURCE_DIR          "C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/cmake/../external/eigen"
-                    BINARY_DIR          "C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/build/eigen-build"
+                    SOURCE_DIR          "C:/Users/augie/OneDrive/Bureau/IGR/IGR08/IGR08-InteractiveStylization/final-code/libigl/cmake/../external/eigen"
+                    BINARY_DIR          "C:/Users/augie/OneDrive/Bureau/IGR/IGR08/IGR08-InteractiveStylization/final-code/build/eigen-build"
                     CONFIGURE_COMMAND   ""
                     BUILD_COMMAND       ""
                     INSTALL_COMMAND     ""

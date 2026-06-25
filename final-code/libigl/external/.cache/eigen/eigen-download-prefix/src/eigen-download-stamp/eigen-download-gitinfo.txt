@@ -3,9 +3,9 @@
 # No other meaning or use of this file is supported.
 
 method=git
-command=C:/msys64/ucrt64/bin/cmake.exe;-DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE;-P;C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/eigen/eigen-download-prefix/tmp/eigen-download-gitclone.cmake
-source_dir=C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/cmake/../external/eigen
-work_dir=C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/cmake/../external
+command=C:/mingw64/bin/cmake.exe;-DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE;-P;C:/Users/augie/OneDrive/Bureau/IGR/IGR08/IGR08-InteractiveStylization/final-code/libigl/external/.cache/eigen/eigen-download-prefix/tmp/eigen-download-gitclone.cmake
+source_dir=C:/Users/augie/OneDrive/Bureau/IGR/IGR08/IGR08-InteractiveStylization/final-code/libigl/cmake/../external/eigen
+work_dir=C:/Users/augie/OneDrive/Bureau/IGR/IGR08/IGR08-InteractiveStylization/final-code/libigl/cmake/../external
 repository=https://github.com/eigenteam/eigen-git-mirror.git
 remote=origin
 init_submodules=TRUE

@@ -71,7 +71,7 @@ void Sphere::setScale(const Eigen::Vector3d& s) {
   double avg_delta = (scale_delta(0) + scale_delta(1) + scale_delta(2)) / 3.0;
   radius += avg_delta;
   // Clamp to minimum
-  radius = std::max(radius, 0.1);
+  radius = std::max(radius, 0.02);
   scale = Eigen::Vector3d::Ones() * radius;
   last_applied_scale = s;
   changed = true;
@@ -124,20 +124,16 @@ void Box::evalLocal(const Eigen::Vector3d& p_local, double& d, Eigen::Vector3d& 
 }
 
 void Box::setScale(const Eigen::Vector3d& s) {
-  // Check if scale has actually changed (within tolerance)
-  double change = (s - last_applied_scale).norm();
+  // Apply absolute per-axis scale so X/Y/Z controls stay independent.
+  Eigen::Vector3d clamped = s.cwiseMax(Eigen::Vector3d::Constant(0.02));
+  double change = (clamped - dim).norm();
   if (change < 1e-6) {
     return;  // No significant change, don't apply scaling
   }
-  
-  // Compute additive scale delta: (current_scale - last_applied_scale)
-  Eigen::Vector3d scale_delta = s - last_applied_scale;
-  // Apply additive scale to each dimension
-  dim = dim + scale_delta;
-  // Clamp each dimension to minimum
-  dim = dim.cwiseMax(Eigen::Vector3d::Constant(0.1));
+
+  dim = clamped;
   scale = dim;
-  last_applied_scale = s;
+  last_applied_scale = dim;
   changed = true;
 }
 

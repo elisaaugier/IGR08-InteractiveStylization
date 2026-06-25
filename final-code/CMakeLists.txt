@@ -21,10 +21,10 @@ foreach(dir ${dirs})
 endforeach()
 
 file(GLOB SRCFILES *.cpp utils/*.cpp)
-add_executable(${PROJECT_NAME}_bin ${SRCFILES})
-target_include_directories(${PROJECT_NAME}_bin PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libigl/external/imgui)
+add_executable(app ${SRCFILES})
+target_include_directories(app PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libigl/external/imgui)
 
-target_link_libraries(${PROJECT_NAME}_bin igl::core igl::opengl igl::opengl_glfw igl::opengl_glfw_imgui)
+target_link_libraries(app igl::core igl::opengl igl::opengl_glfw igl::opengl_glfw_imgui)
 
 
 

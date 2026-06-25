@@ -22,6 +22,11 @@ struct target_style
     double radius = 1.0;
 	double lambda = 1;
 	double falloff = 2;
+	bool is_pyramid = false;
+	int pyramidSides = 5;
+	double pyramidBaseRadius = 1.0;
+	double pyramidHeight = 1.0;
+	Eigen::Matrix3d pyramidOrientation = Eigen::Matrix3d::Identity();
 
 	std::shared_ptr<Primitive> prim_sdf = nullptr;
 };
