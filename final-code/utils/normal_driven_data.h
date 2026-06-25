@@ -29,6 +29,8 @@ struct target_style
 	Eigen::Matrix3d pyramidOrientation = Eigen::Matrix3d::Identity();
 
 	std::shared_ptr<Primitive> prim_sdf = nullptr;
+	bool isBaseMesh = false;
+	Eigen::Vector3d meshScale = Eigen::Vector3d::Ones();
 };
 
 struct normal_driven_data

@@ -42,6 +42,7 @@ struct Mode
 
     int hovered_constr_idx = -1;
     int selected_tstyle_idx = -1;
+    int selected_base_mesh_idx = -1;
 
     bool drawing_mode = false;
     bool is_drawing = false;
@@ -61,6 +62,7 @@ int main(int argc, char *argv[])
     bool useFaceArap = false;
 
     normal_driven_data data;
+    std::vector<target_style> base_meshes;
 
     meshName = (argc > 1) ? argv[1] : "cow.obj";
 
@@ -363,6 +365,16 @@ int main(int argc, char *argv[])
             return Vstyle;
         }
 
+        // Base meshes: sV is already centered; apply meshScale then position.
+        if (tStyle.isBaseMesh)
+        {
+            Vstyle.col(0).array() *= tStyle.meshScale(0);
+            Vstyle.col(1).array() *= tStyle.meshScale(1);
+            Vstyle.col(2).array() *= tStyle.meshScale(2);
+            Vstyle = Vstyle.rowwise() + tStyle.center;
+            return Vstyle;
+        }
+
         const RowVector3d baseCenter = Vstyle.colwise().mean();
         Vstyle = Vstyle.rowwise() - baseCenter;
 
@@ -386,15 +398,17 @@ int main(int argc, char *argv[])
         return Vstyle;
     };
 
-    const Eigen::RowVector4d kPrimitiveDefaultColor(0.65, 0.82, 1.00, 0.28);  // pale blue, slightly transparent
-    const Eigen::RowVector4d kPrimitiveSelectedColor(1.00, 0.95, 0.55, 0.35); // pale yellow, slightly transparent
+    const Eigen::RowVector4d kPrimitiveDefaultColor(0.55, 0.75, 1.00, 0.22);  // pale blue, transparent
+    const Eigen::RowVector4d kPrimitiveSelectedColor(1.00, 0.92, 0.40, 0.30); // pale yellow, transparent
+    const Eigen::RowVector4d kBaseMeshDefaultColor(0.72, 0.72, 0.72, 1.0);   // opaque gray
+    const Eigen::RowVector4d kBaseMeshSelectedColor(0.40, 0.88, 0.52, 1.0);  // opaque green
 
     auto apply_style_color = [&] (target_style& tStyle, bool selected) {
-        if (tStyle.viewer_id == -1)
-        {
-            return;
-        }
-        viewer.data(tStyle.viewer_id).set_colors(selected ? kPrimitiveSelectedColor : kPrimitiveDefaultColor);
+        if (tStyle.viewer_id == -1) return;
+        if (tStyle.isBaseMesh)
+            viewer.data(tStyle.viewer_id).set_colors(selected ? kBaseMeshSelectedColor : kBaseMeshDefaultColor);
+        else
+            viewer.data(tStyle.viewer_id).set_colors(selected ? kPrimitiveSelectedColor : kPrimitiveDefaultColor);
     };
 
     auto render_style = [&] (target_style& tStyle) {
@@ -402,7 +416,7 @@ int main(int argc, char *argv[])
         MatrixXd primitive_V = build_style_vertices(tStyle);
         viewer.data(tStyle.viewer_id).set_mesh(primitive_V, tStyle.sF);
         apply_style_color(tStyle, false);
-        viewer.data(tStyle.viewer_id).show_lines = tStyle.is_visible; // display edges
+        viewer.data(tStyle.viewer_id).show_lines = false; // no edges — needed for transparency
         viewer.data(tStyle.viewer_id).show_faces = tStyle.is_visible;
     };
 
@@ -436,6 +450,44 @@ int main(int argc, char *argv[])
 
         update_pyramid_style(tStyle);
         return tStyle.sV;
+    };
+
+    auto delete_selected_base_mesh = [&]() -> bool {
+        const int idx = state.selected_base_mesh_idx;
+        if (idx < 0 || idx >= static_cast<int>(base_meshes.size())) return false;
+        const int vid = base_meshes[idx].viewer_id;
+        if (vid >= 0 && vid < static_cast<int>(viewer.data_list.size())) {
+            // Keep layer indices stable to avoid viewer_id desynchronization.
+            viewer.data(vid).clear();
+            viewer.data(vid).show_faces = false;
+            viewer.data(vid).show_lines = false;
+        }
+        base_meshes.erase(base_meshes.begin() + idx);
+
+        // Keep internal active mesh state consistent to avoid orphan display meshes.
+        if (base_meshes.empty())
+        {
+            state.selected_base_mesh_idx = -1;
+            state.show_base_mesh = false;
+            state.CV = Eigen::MatrixXd();
+            state.numCV = 0;
+            viewer.data_list[0].clear();
+        }
+        else
+        {
+            const int next_idx = std::min(idx, static_cast<int>(base_meshes.size()) - 1);
+            state.selected_base_mesh_idx = next_idx;
+            auto& active = base_meshes[next_idx];
+            Eigen::MatrixXd activeV = build_style_vertices(active);
+            V = activeV;
+            F = active.sF;
+            U = V;
+            VO = V;
+            data.V0 = V;
+            state.show_base_mesh = false;
+            apply_style_color(active, true);
+        }
+        return true;
     };
 
     auto rebuild_sdf_view = [&]() {
@@ -475,23 +527,89 @@ int main(int argc, char *argv[])
         const int removed_viewer_id = data.styles_list[idx].viewer_id;
         if (removed_viewer_id >= 0 && removed_viewer_id < static_cast<int>(viewer.data_list.size()))
         {
-            if (!viewer.erase_mesh(removed_viewer_id))
-            {
-                viewer.data(removed_viewer_id).clear();
-            }
+            // Keep layer indices stable to avoid cross-list id shifts.
+            viewer.data(removed_viewer_id).clear();
+            viewer.data(removed_viewer_id).show_faces = false;
+            viewer.data(removed_viewer_id).show_lines = false;
         }
 
         data.styles_list.erase(data.styles_list.begin() + idx);
-        for (auto& tStyle : data.styles_list)
-        {
-            if (tStyle.viewer_id > removed_viewer_id)
-            {
-                tStyle.viewer_id -= 1;
-            }
-        }
 
         state.selected_tstyle_idx = -1;
         rebuild_sdf_view();
+        return true;
+    };
+
+    auto convert_base_mesh_to_primitive = [&](int idx) -> bool {
+        if (idx < 0 || idx >= static_cast<int>(base_meshes.size()))
+        {
+            return false;
+        }
+
+        target_style converted = base_meshes[idx];
+        Eigen::MatrixXd worldV = build_style_vertices(converted);
+        if (worldV.rows() == 0 || converted.sF.rows() == 0)
+        {
+            return false;
+        }
+
+        // Freeze current pose into a primitive-friendly local representation.
+        const Eigen::RowVector3d center = worldV.colwise().mean();
+        converted.sV = worldV.rowwise() - center;
+        converted.center = center;
+        converted.meshScale = Eigen::Vector3d::Ones();
+        converted.isBaseMesh = false;
+        converted.is_pyramid = false;
+
+        const Eigen::RowVector3d vmin = converted.sV.colwise().minCoeff();
+        const Eigen::RowVector3d vmax = converted.sV.colwise().maxCoeff();
+        const Eigen::Vector3d halfExt = (0.5 * (vmax - vmin)).transpose().cwiseMax(0.02);
+        converted.radius = std::max(halfExt(0), std::max(halfExt(1), halfExt(2)));
+        converted.prim_sdf = std::make_shared<Box>(halfExt, converted.center);
+
+        Eigen::MatrixXd sN;
+        Eigen::MatrixXi useless1, useless2;
+        igl::per_face_normals(converted.sV, converted.sF, sN);
+        igl::unique_rows(sN, converted.desiredN, useless1, useless2);
+
+        data.styles_list.push_back(converted);
+        base_meshes.erase(base_meshes.begin() + idx);
+        state.selected_base_mesh_idx = -1;
+        state.selected_tstyle_idx = static_cast<int>(data.styles_list.size()) - 1;
+
+        rebuild_sdf_view();
+        apply_style_color(data.styles_list.back(), true);
+        return true;
+    };
+
+    auto convert_primitive_to_base_mesh = [&](int idx) -> bool {
+        if (idx < 0 || idx >= static_cast<int>(data.styles_list.size()))
+        {
+            return false;
+        }
+
+        target_style converted = data.styles_list[idx];
+        Eigen::MatrixXd worldV = build_style_vertices(converted);
+        if (worldV.rows() == 0 || converted.sF.rows() == 0)
+        {
+            return false;
+        }
+
+        const Eigen::RowVector3d center = worldV.colwise().mean();
+        converted.sV = worldV.rowwise() - center;
+        converted.center = center;
+        converted.meshScale = Eigen::Vector3d::Ones();
+        converted.isBaseMesh = true;
+        converted.prim_sdf = nullptr;
+        converted.is_pyramid = false;
+
+        base_meshes.push_back(converted);
+        data.styles_list.erase(data.styles_list.begin() + idx);
+        state.selected_tstyle_idx = -1;
+        state.selected_base_mesh_idx = static_cast<int>(base_meshes.size()) - 1;
+
+        rebuild_sdf_view();
+        apply_style_color(base_meshes.back(), true);
         return true;
     };
 
@@ -500,6 +618,7 @@ int main(int argc, char *argv[])
 	menu.callback_draw_viewer_window = [](){};
 
     static bool show_all_targets = true;
+    static std::string base_mesh_name = "(none)";
 
 	menu.callback_draw_custom_window = [&]()
 	{
@@ -597,7 +716,50 @@ int main(int argc, char *argv[])
                     }
                 }
             }
-		}
+
+            // ImGuizmo for selected base mesh
+            if (state.selected_base_mesh_idx >= 0 &&
+                state.selected_base_mesh_idx < static_cast<int>(base_meshes.size()))
+            {
+                auto& bm = base_meshes[state.selected_base_mesh_idx];
+                if (bm.is_visible)
+                {
+                    static int last_bm_idx = -1;
+                    static Eigen::Vector3d bm_gizmo_scale = Eigen::Vector3d::Ones();
+                    if (state.selected_base_mesh_idx != last_bm_idx) {
+                        bm_gizmo_scale = bm.meshScale;
+                        last_bm_idx = state.selected_base_mesh_idx;
+                    }
+
+                    Eigen::Matrix4f model = Eigen::Matrix4f::Identity();
+                    model.block<3,1>(0,3) = bm.center.cast<float>().transpose();
+                    model(0,0) = bm_gizmo_scale(0);
+                    model(1,1) = bm_gizmo_scale(1);
+                    model(2,2) = bm_gizmo_scale(2);
+
+                    if (ImGuizmo::Manipulate(view.data(), proj.data(), current_operation, ImGuizmo::LOCAL, model.data()))
+                    {
+                        const Eigen::Vector3d new_pos = model.block<3,1>(0,3).cast<double>();
+                        bm.center = new_pos.transpose();
+
+                        if (current_operation == ImGuizmo::SCALE) {
+                            bm_gizmo_scale = Eigen::Vector3d(model(0,0), model(1,1), model(2,2));
+                            bm.meshScale = bm_gizmo_scale.cwiseMax(0.02);
+                        }
+
+                        if (bm.viewer_id != -1) {
+                            MatrixXd new_bV = build_style_vertices(bm);
+                            viewer.data(bm.viewer_id).set_vertices(new_bV);
+                            viewer.data(bm.viewer_id).compute_normals();
+                            // Update active V/F
+                            if (state.selected_base_mesh_idx == state.selected_base_mesh_idx) {
+                                V = new_bV; F = bm.sF; U = V; VO = V; data.V0 = V;
+                            }
+                        }
+                    }
+                }
+            }
+        }
         // Expose the same variable directly
         {
             // How to use
@@ -648,28 +810,74 @@ int main(int argc, char *argv[])
         {
             if (request.isBaseMesh)
             {
-                // Load as the base deformable mesh (V/F).
+                // If we are in transformation mode, the active base mesh layer can be hidden
+                // (ARAP result shown in layer 0). Restore it before switching selection.
+                if (!state.place_constraints &&
+                    state.selected_base_mesh_idx >= 0 &&
+                    state.selected_base_mesh_idx < static_cast<int>(base_meshes.size()))
+                {
+                    auto& previousBM = base_meshes[state.selected_base_mesh_idx];
+                    Eigen::MatrixXd previousV = build_style_vertices(previousBM);
+                    if (previousBM.viewer_id != -1)
+                    {
+                        viewer.data(previousBM.viewer_id).set_vertices(previousV);
+                        viewer.data(previousBM.viewer_id).compute_normals();
+                        viewer.data(previousBM.viewer_id).show_faces = previousBM.is_visible;
+                        viewer.data(previousBM.viewer_id).show_lines = false;
+                    }
+                }
+
                 const std::string meshFile = std::string(MESH_PATH) + request.filename;
                 Eigen::MatrixXd newV;
                 Eigen::MatrixXi newF;
                 if (igl::read_triangle_mesh(meshFile, newV, newF) && newV.rows() > 0 && newF.rows() > 0)
                 {
+                    // Normalize and center sV at origin
                     newV = newV.rowwise() - newV.colwise().minCoeff();
                     newV /= newV.maxCoeff();
-                    V = newV;
-                    F = newF;
-                    U = V;
-                    VO = V;
-                    data.V0 = V;  // keep V0 in sync so precomputation is valid
-                    data.b.resize(0);
-                    data.bc.resize(0, 3);
+                    const Eigen::RowVector3d centroid = newV.colwise().mean();
+                    newV = newV.rowwise() - centroid;
+
+                    // Build unique name
+                    int count = 0;
+                    for (const auto& bm : base_meshes)
+                        if (bm.name.size() >= request.baseName.size() &&
+                            bm.name.substr(0, request.baseName.size()) == request.baseName) count++;
+                    target_style bm;
+                    bm.name = request.baseName + "_" + std::to_string(count);
+                    bm.sV = newV;
+                    bm.sF = newF;
+                    bm.center = Eigen::RowVector3d::Zero();
+                    bm.meshScale = Eigen::Vector3d::Ones();
+                    bm.is_visible = true;
+                    bm.isBaseMesh = true;
+
+                    // Render in its own viewer layer
+                    bm.viewer_id = viewer.append_mesh();
+                    Eigen::MatrixXd bV = build_style_vertices(bm);
+                    viewer.data(bm.viewer_id).set_mesh(bV, bm.sF);
+                    viewer.data(bm.viewer_id).set_colors(kBaseMeshDefaultColor);
+                    viewer.data(bm.viewer_id).show_lines = false;
+                    viewer.data(bm.viewer_id).show_faces = true;
+
+                    const int newIdx = static_cast<int>(base_meshes.size());
+                    base_meshes.push_back(bm);
+                    state.selected_base_mesh_idx = newIdx;
+                    for (int i = 0; i < static_cast<int>(base_meshes.size()); ++i)
+                    {
+                        apply_style_color(base_meshes[i], i == newIdx);
+                    }
+
+                    // Set as active V/F for ARAP
+                    V = bV; F = newF; U = V; VO = V; data.V0 = V;
+                    data.b.resize(0); data.bc.resize(0, 3);
                     state.CV = Eigen::MatrixXd();
                     state.CV_row_col = Eigen::MatrixXi();
                     state.CV_row_col.resize(100, 2);
                     state.numCV = 0;
                     state.place_constraints = true;
-                    state.show_base_mesh = true;
-                    // draw() called automatically on next frame
+                    state.show_base_mesh = false; // base mesh shown via viewer_id
+                    base_mesh_name = bm.name;
                 }
             }
             else
@@ -712,8 +920,105 @@ int main(int argc, char *argv[])
                 }
             }
 
+            // ======= BASE MESHES =======
             ImGui::Separator();
-            ImGui::Text("Test");
+            ImGui::TextUnformatted("Base meshes");
+            ImGui::Spacing();
+
+            {
+                int bm_pending_delete = -1;
+                int bm_pending_convert = -1;
+                for (int bi = 0; bi < static_cast<int>(base_meshes.size()); bi++)
+                {
+                    auto& bm = base_meshes[bi];
+                    ImGui::PushID(2000 + bi);
+
+                    const bool bm_selected = (bi == state.selected_base_mesh_idx);
+                    ImGuiTreeNodeFlags bm_flags = ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_AllowItemOverlap;
+                    if (bm_selected) bm_flags |= ImGuiTreeNodeFlags_Selected;
+
+                    bool bm_open = ImGui::TreeNodeEx(bm.name.c_str(), bm_flags);
+
+                    ImGui::SameLine(ImGui::GetWindowWidth() - 40);
+                    if (ImGui::Checkbox("##vis", &bm.is_visible)) {
+                        if (bm.viewer_id != -1) {
+                            viewer.data(bm.viewer_id).show_faces = bm.is_visible;
+                            viewer.data(bm.viewer_id).show_lines = false;
+                        }
+                    }
+
+                    if (ImGui::IsItemClicked()) {
+                        state.selected_base_mesh_idx = bi;
+                        // Update active V/F
+                        Eigen::MatrixXd newV = build_style_vertices(bm);
+                        V = newV; F = bm.sF; U = V; VO = V; data.V0 = V;
+                        data.b.resize(0); data.bc.resize(0, 3);
+                        state.CV = Eigen::MatrixXd();
+                        state.CV_row_col.resize(100, 2);
+                        state.numCV = 0;
+                        apply_style_color(bm, true);
+                        // Deselect other base meshes
+                        for (int oi = 0; oi < static_cast<int>(base_meshes.size()); oi++)
+                            if (oi != bi) apply_style_color(base_meshes[oi], false);
+                    }
+
+                    if (bm_open)
+                    {
+                        bool changed = false;
+
+                        if (ImGui::Button("Convert to primitive", ImVec2(-1, 0)))
+                            bm_pending_convert = bi;
+
+                        if (ImGui::Button("Delete", ImVec2(-1, 0)))
+                            bm_pending_delete = bi;
+
+                        ImGui::Separator();
+
+                        // Position
+                        float center_f[3] = { (float)bm.center(0), (float)bm.center(1), (float)bm.center(2) };
+                        if (ImGui::SliderFloat3("Position", center_f, -2.0f, 2.0f, "%.3f")) {
+                            bm.center << center_f[0], center_f[1], center_f[2];
+                            changed = true;
+                        }
+
+                        // Scale
+                        float scale_f[3] = { (float)bm.meshScale(0), (float)bm.meshScale(1), (float)bm.meshScale(2) };
+                        if (ImGui::SliderFloat3("Scale", scale_f, 0.02f, 4.0f, "%.2f")) {
+                            bm.meshScale << scale_f[0], scale_f[1], scale_f[2];
+                            changed = true;
+                        }
+
+                        if (changed && bm.viewer_id != -1) {
+                            Eigen::MatrixXd newV = build_style_vertices(bm);
+                            viewer.data(bm.viewer_id).set_vertices(newV);
+                            viewer.data(bm.viewer_id).compute_normals();
+                            if (bi == state.selected_base_mesh_idx) {
+                                V = newV; F = bm.sF; U = V; VO = V; data.V0 = V;
+                            }
+                        }
+
+                        ImGui::TreePop();
+                    }
+
+                    ImGui::PopID();
+                    if (bi >= static_cast<int>(base_meshes.size())) break;
+                }
+
+                if (base_meshes.empty())
+                    ImGui::TextColored(ImVec4(0.6f,0.6f,0.6f,1.f), "(aucun mesh de base)");
+
+                if (bm_pending_convert >= 0) {
+                    convert_base_mesh_to_primitive(bm_pending_convert);
+                }
+                if (bm_pending_delete >= 0) {
+                    state.selected_base_mesh_idx = bm_pending_delete;
+                    delete_selected_base_mesh();
+                }
+            }
+
+            // ======= PRIMITIVES =======
+            ImGui::Separator();
+            ImGui::TextUnformatted("Primitives");
             ImGui::Spacing();
 
             if (state.selected_tstyle_idx >= 0 && state.selected_tstyle_idx < static_cast<int>(data.styles_list.size()))
@@ -731,8 +1036,10 @@ int main(int argc, char *argv[])
                 ImGui::TextUnformatted("Selected: none");
             }
             ImGui::Separator();
+            ImGui::Spacing();
 
             int pending_delete_idx = -1;
+            int pending_convert_idx = -1;
 
             for (int i=0; i < data.styles_list.size(); i++) {
                 auto& tStyle = data.styles_list[i];
@@ -753,6 +1060,11 @@ int main(int argc, char *argv[])
                 if (is_open) 
                 {
                     bool changed = false;
+
+                    if (ImGui::Button("Convert to base mesh", ImVec2(-1, 0)))
+                    {
+                        pending_convert_idx = i;
+                    }
 
                     if (ImGui::Button("Delete Primitive", ImVec2(-1, 0)))
                     {
@@ -885,8 +1197,17 @@ int main(int argc, char *argv[])
                     break;
                 }
 
+                if (pending_convert_idx != -1)
+                {
+                    break;
+                }
+
             }
 
+            if (pending_convert_idx != -1)
+            {
+                convert_primitive_to_base_mesh(pending_convert_idx);
+            }
             if (pending_delete_idx != -1)
             {
                 state.selected_tstyle_idx = pending_delete_idx;
@@ -1133,23 +1454,61 @@ int main(int argc, char *argv[])
                     draw();
                     return true;
                 }
+                if (delete_selected_base_mesh())
+                {
+                    draw();
+                    return true;
+                }
                 break;
             }
             case ' ':
             {
-                if (!state.show_base_mesh) break; // no mesh loaded yet
-                // Only toggle if there are styles to optimize against.
+                // If none selected but base meshes exist, use the first one.
+                if (state.selected_base_mesh_idx < 0 && !base_meshes.empty())
+                {
+                    state.selected_base_mesh_idx = 0;
+                }
+
+                const bool hasBaseMesh = state.show_base_mesh ||
+                    (!base_meshes.empty()) ||
+                    (state.selected_base_mesh_idx >= 0 &&
+                     state.selected_base_mesh_idx < static_cast<int>(base_meshes.size()));
+                if (!hasBaseMesh) break;
+
                 if (!state.place_constraints)
                 {
-                    // going back to idle: always allowed
+                    // Back to idle: restore base mesh visual
                     state.place_constraints = true;
+                    if (state.selected_base_mesh_idx >= 0 &&
+                        state.selected_base_mesh_idx < static_cast<int>(base_meshes.size()))
+                    {
+                        auto& activeBM = base_meshes[state.selected_base_mesh_idx];
+                        MatrixXd restoreV = build_style_vertices(activeBM);
+                        if (activeBM.viewer_id != -1) {
+                            viewer.data(activeBM.viewer_id).set_vertices(restoreV);
+                            viewer.data(activeBM.viewer_id).compute_normals();
+                            viewer.data(activeBM.viewer_id).show_faces = activeBM.is_visible;
+                        }
+                        state.show_base_mesh = false;
+                    }
                     resetCV();
                     draw();
                     break;
                 }
-                // going into optimization: require at least one style
-                if (data.styles_list.empty()) break;
+
+                // Going into optimization
                 state.place_constraints = false;
+                if (state.selected_base_mesh_idx >= 0 &&
+                    state.selected_base_mesh_idx < static_cast<int>(base_meshes.size()))
+                {
+                    auto& activeBM = base_meshes[state.selected_base_mesh_idx];
+                    MatrixXd currentV = build_style_vertices(activeBM);
+                    V = currentV; F = activeBM.sF; U = V; VO = V; data.V0 = V;
+                    // Hide base mesh visual: ARAP result shown in data_list[0]
+                    if (activeBM.viewer_id != -1)
+                        viewer.data(activeBM.viewer_id).show_faces = false;
+                    state.show_base_mesh = true;
+                }
                 if (!state.place_constraints && state.CV.rows()>0)
                 {
                     // set constrained points
@@ -1241,15 +1600,39 @@ int main(int argc, char *argv[])
         bool isShiftPressed = (modifier & 1); // GLFW_MOD_SHIFT = 1
         if (!isShiftPressed && button==0)
         {
+            // Deselect previously selected primitive
             if (state.selected_tstyle_idx != -1) {
                 auto& selected_tstyle = data.styles_list[state.selected_tstyle_idx];
                 apply_style_color(selected_tstyle, false);
             }
-            int closest_tstyle_idx = -1;
+            // Deselect previously selected base mesh
+            if (state.selected_base_mesh_idx != -1 &&
+                state.selected_base_mesh_idx < static_cast<int>(base_meshes.size())) {
+                apply_style_color(base_meshes[state.selected_base_mesh_idx], false);
+            }
+
+            int closest_idx = -1;
+            bool closest_is_base = false;
             double min_dist = 1e20;
 
-            // ray casting
-            for (int i=0; i<data.styles_list.size(); i++) {
+            // Ray casting — base meshes
+            for (int i = 0; i < static_cast<int>(base_meshes.size()); i++) {
+                auto& bm = base_meshes[i];
+                if (!bm.is_visible || bm.viewer_id == -1) continue;
+                Eigen::MatrixXd bV = build_style_vertices(bm);
+                int fid; Vector3f bary;
+                if (igl::unproject_onto_mesh(Vector2f(x,y), viewer.core().view, viewer.core().proj, viewer.core().viewport, bV, bm.sF, fid, bary))
+                {
+                    RowVector3d hit = bary(0)*bV.row(bm.sF(fid,0)) + bary(1)*bV.row(bm.sF(fid,1)) + bary(2)*bV.row(bm.sF(fid,2));
+                    Vector3d cam = (-viewer.core().view.block<3,3>(0,0).transpose() * viewer.core().view.block<3,1>(0,3)).cast<double>();
+                    double d = (hit - cam.transpose()).norm();
+                    if (d < min_dist) { min_dist = d; closest_idx = i; closest_is_base = true; }
+                }
+            }
+
+            // Ray casting — primitives
+            int closest_tstyle_idx = -1;
+            for (int i=0; i<static_cast<int>(data.styles_list.size()); i++) {
                 auto& tStyle = data.styles_list[i];
                 if (!tStyle.is_visible || tStyle.viewer_id == -1) continue;
                 
@@ -1274,24 +1657,59 @@ int main(int argc, char *argv[])
                     if (dist_to_cam < min_dist) {
                         min_dist = dist_to_cam;
                         closest_tstyle_idx = i;
+                        closest_is_base = false;
                     }
                 }
             }
 
-            if (closest_tstyle_idx != -1) {
+            if (closest_is_base && closest_idx != -1) {
+                state.selected_base_mesh_idx = closest_idx;
+                state.selected_tstyle_idx = -1;
+                apply_style_color(base_meshes[closest_idx], true);
+                // Update active V/F
+                Eigen::MatrixXd newV = build_style_vertices(base_meshes[closest_idx]);
+                V = newV; F = base_meshes[closest_idx].sF; U = V; VO = V; data.V0 = V;
+                data.b.resize(0); data.bc.resize(0, 3);
+                state.CV = Eigen::MatrixXd();
+                state.CV_row_col.resize(100, 2);
+                state.numCV = 0;
+                return true;
+            }
+            else if (!closest_is_base && closest_tstyle_idx != -1) {
                 state.selected_tstyle_idx = closest_tstyle_idx;
+                state.selected_base_mesh_idx = -1;
                 auto& selected_tstyle = data.styles_list[closest_tstyle_idx];
                 apply_style_color(selected_tstyle, true);
                 return true;
             }
             else {
                 state.selected_tstyle_idx = -1;
+                state.selected_base_mesh_idx = -1;
             }
         }
 
-        // add/remove constraints (only in idle mode, not when drawing or selecting primitives)
-        if (!sketchBridge.isDrawingMode() && state.place_constraints && button == 0)
+        // add/remove constraints (right click, idle mode only)
+        if (!sketchBridge.isDrawingMode() && state.place_constraints && (button == 1 || button == 2))
         {
+            // Ensure constraints are edited on the active mesh rendered by draw().
+            if (!state.show_base_mesh &&
+                state.selected_base_mesh_idx >= 0 &&
+                state.selected_base_mesh_idx < static_cast<int>(base_meshes.size()))
+            {
+                auto& activeBM = base_meshes[state.selected_base_mesh_idx];
+                Eigen::MatrixXd activeV = build_style_vertices(activeBM);
+                V = activeV;
+                F = activeBM.sF;
+                U = V;
+                VO = V;
+                data.V0 = V;
+                if (activeBM.viewer_id != -1)
+                {
+                    viewer.data(activeBM.viewer_id).show_faces = false;
+                }
+                state.show_base_mesh = true;
+            }
+
             if (state.hovered_constr_idx != -1)
             // constraint removal
             {
@@ -1308,6 +1726,7 @@ int main(int argc, char *argv[])
                 state.numCV--;
                 state.hovered_constr_idx = -1;
                 draw();
+                return true;
             }
             else
             // constraint addition
@@ -1330,6 +1749,8 @@ int main(int argc, char *argv[])
                     return true;
                 }
             }
+
+            return true;
         }
 
         // draw in 2D (only when Shift is held)
@@ -1423,6 +1844,10 @@ int main(int argc, char *argv[])
         if ((deletePressed || deleteEdgeRaw) && !io.WantTextInput)
         {
             if (delete_selected_style())
+            {
+                draw();
+            }
+            else if (delete_selected_base_mesh())
             {
                 draw();
             }
