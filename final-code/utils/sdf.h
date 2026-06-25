@@ -27,6 +27,13 @@ public:
     changed = true;
   }
   
+  virtual void setScale(const Eigen::Vector3d& s) {
+    scale = s;
+    changed = true;
+  }
+  
+  virtual void resetScaleTracking() {}
+  
   void getMesh(Eigen::MatrixXd &V, Eigen::MatrixXi &F);
   virtual void eval(Eigen::RowVector3d p, double &d, Eigen::RowVector3d &grad) = 0;
 
@@ -76,6 +83,9 @@ class SDF {
   void addPrimitive(std::unique_ptr<Primitive> p) {primitives.push_back(std::move(p));}
   void eval(Eigen::RowVector3d p, double &d, Eigen::RowVector3d &grad);
   void setRuntimeTransform(int idx, const Eigen::Vector3d& p, const Eigen::Matrix3d& r, const Eigen::Vector3d& s);
+  void setScale(int idx, const Eigen::Vector3d& s);
+  void resetScaleTracking(int idx);
+  Eigen::Vector3d getScale(int idx) const;
   void getMesh(Eigen::MatrixXd &V, Eigen::MatrixXi &F);
   void computeSdfVector (Eigen::MatrixXd &V, Eigen::MatrixXd &Vsdf);
   void computeSdfVector2 (Eigen::MatrixXd &V, Eigen::MatrixXd &Vsdf);
@@ -94,7 +104,13 @@ class Sphere : public Primitive {
   Sphere(double r, Eigen::RowVector3d c);
   void eval(Eigen::RowVector3d p, double &d, Eigen::RowVector3d &grad) final;
   void evalLocal(const Eigen::Vector3d& p_local, double& d, Eigen::Vector3d& grad_local) final;
+  void setScale(const Eigen::Vector3d& s) final;
+  void resetScaleTracking() final;
   double radius;
+  Eigen::Vector3d getScale() const { return scale; }
+  
+private:
+  Eigen::Vector3d last_applied_scale = Eigen::Vector3d::Ones();
 };
 
 class Box : public Primitive {
@@ -102,7 +118,13 @@ public:
   Box(Eigen::RowVector3d d, Eigen::RowVector3d c);
   void eval(Eigen::RowVector3d p, double &d, Eigen::RowVector3d &grad) final;
   void evalLocal(const Eigen::Vector3d& p_local, double& d, Eigen::Vector3d& grad_local) final;
+  void setScale(const Eigen::Vector3d& s) final;
+  void resetScaleTracking() final;
   Eigen::Vector3d dim;
+  Eigen::Vector3d getScale() const { return scale; }
+  
+private:
+  Eigen::Vector3d last_applied_scale = Eigen::Vector3d::Ones();
 };
 
 class Cylinder : public Primitive {

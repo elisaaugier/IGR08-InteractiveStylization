@@ -94,6 +94,8 @@ int main(int argc, char *argv[])
 
     string file = MESH_PATH + meshName;
     igl::read_triangle_mesh(file, V, F);
+    V = V.rowwise() - V.colwise().minCoeff();
+    V /= V.maxCoeff();
     U = V;
     VO = V;
 
@@ -191,7 +193,7 @@ int main(int argc, char *argv[])
     data.SDF.addPrimitive(std::make_unique<Box>(RowVector3d(0.5, 0.5, 0.5), RowVector3d(0.0, -0.5, 0.5)));
     //data.SDF.addPrimitive(std::make_unique<Box>(RowVector3d(0.7 ,0.7 ,0.7), RowVector3d(0.0, -1.5, 1.5)));
     //data.SDF.addPrimitive(std::make_unique<Sphere>(0.7, Eigen::RowVector3d(0.0, 0.0, 0.0)));
-    data.SDF.addPrimitive(std::make_unique<Sphere>(0.5, RowVector3d(0.0, 1.0, 1.0)));
+    data.SDF.addPrimitive(std::make_unique<Sphere>(0.4, RowVector3d(0.0, 1.0, 1.0)));
 
     // initialize viewer
     igl::opengl::glfw::Viewer viewer;
@@ -213,6 +215,7 @@ int main(int argc, char *argv[])
     C.col(3).setConstant(0.3);  // alpha
 
     viewer.data(sdfId).set_colors(C);
+    ImGuizmo::OPERATION current_operation = ImGuizmo::TRANSLATE;
 
     // rotation parameters
     double theta_x = 10.0; 
@@ -309,30 +312,50 @@ int main(int argc, char *argv[])
                 {
                     Eigen::Matrix4f model = Eigen::Matrix4f::Identity();
                     model.block<3,1>(0,3) = tStyle.center.cast<float>().transpose();   
-                                     
-                    model(0,0) = tStyle.radius;
-                    model(1,1) = tStyle.radius;
-                    model(2,2) = tStyle.radius;
+                    
+                    // Track scale vector per primitive (not just radius)
+                    static int last_selected_idx = -1;
+                    static Eigen::Vector3d gizmo_scale = Eigen::Vector3d::Ones();
+                    
+                    if (i != last_selected_idx) {
+                        data.SDF.resetScaleTracking(i);
+                        gizmo_scale = data.SDF.getScale(i);
+                        last_selected_idx = i;
+                    }
+                    
+                    model(0,0) = gizmo_scale(0);
+                    model(1,1) = gizmo_scale(1);
+                    model(2,2) = gizmo_scale(2);
 
-                    static ImGuizmo::OPERATION current_operation = ImGuizmo::TRANSLATE; 
+                    //current_operation = ImGuizmo::TRANSLATE;
 
                     if (ImGuizmo::Manipulate(view.data(), proj.data(), current_operation, ImGuizmo::LOCAL, model.data()))
                     {
                         Eigen::Vector3f new_center = model.block<3,1>(0,3);
                         Eigen::Vector3d new_pos = new_center.cast<double>();
                         tStyle.center = new_pos.transpose();
+                        
+                        // Extract scale from model matrix
+                        Eigen::Vector3d scale(model(0,0), model(1,1), model(2,2));
+                        
                         data.SDF.setRuntimeTransform(i, new_pos, Eigen::Matrix3d::Identity(), Eigen::Vector3d::Ones());
                         data.SDF.getMesh(Vsdf, Fsdf);
                         viewer.data(sdfId).set_mesh(Vsdf, Fsdf);
                         viewer.data(sdfId).compute_normals();
                         
                         if (current_operation == ImGuizmo::SCALE) {
-                            tStyle.radius = (model(0,0) + model(1,1) + model(2,2)) / 3.0;
+                            // Update tracked scale and apply to SDF
+                            gizmo_scale = scale;
+                            data.SDF.setScale(i, scale);
+                            data.SDF.getMesh(Vsdf, Fsdf);
+                            viewer.data(sdfId).set_mesh(Vsdf, Fsdf);
+                            viewer.data(sdfId).compute_normals();
                         }
 
                         if (tStyle.viewer_id != -1) {
                             Eigen::MatrixXd new_V = (tStyle.sV * tStyle.radius).rowwise() + tStyle.center;
                             viewer.data(tStyle.viewer_id).set_vertices(new_V);
+                            viewer.data(tStyle.viewer_id).clear();
                         }
                     }
                 }
@@ -690,6 +713,15 @@ int main(int argc, char *argv[])
                 }
                 break;
             }
+            case 'l':
+            case 'L': {
+                if (current_operation == ImGuizmo::TRANSLATE) {
+                    current_operation = ImGuizmo::SCALE;
+                } else {
+                    current_operation = ImGuizmo::TRANSLATE;
+                }
+                break;
+            }
             case ' ':
             {
                 state.place_constraints = !state.place_constraints; // switch mode
@@ -785,8 +817,59 @@ int main(int argc, char *argv[])
         //     }
         // }
 
-        // add/remove constraints 
-        if (!state.drawing_mode && state.place_constraints && button == 0)
+        // select a target style mesh
+        if (!state.drawing_mode && button==0) 
+        {
+            if (state.selected_tstyle_idx != -1) {
+                auto& selected_tstyle = data.styles_list[state.selected_tstyle_idx];
+                viewer.data(selected_tstyle.viewer_id).set_colors(Eigen::RowVector4d(1.0, 1.0, 1.0, 0.4));
+            }
+            int closest_tstyle_idx = -1;
+            double min_dist = 1e20;
+
+            // ray casting
+            for (int i=0; i<data.styles_list.size(); i++) {
+                auto& tStyle = data.styles_list[i];
+                if (!tStyle.is_visible || tStyle.viewer_id == -1) continue;
+                
+                Eigen::MatrixXd tStyle_V = (tStyle.sV * tStyle.radius).rowwise() + tStyle.center;
+                int fid;
+                Vector3f bary;
+
+                if (igl::unproject_onto_mesh(Vector2f(x,y), viewer.core().view, viewer.core().proj, viewer.core().viewport, tStyle_V, tStyle.sF, fid, bary))
+                {
+                    RowVector3d hit_point =
+                        bary(0) * tStyle_V.row(tStyle.sF(fid, 0)) + 
+                        bary(1) * tStyle_V.row(tStyle.sF(fid, 1)) + 
+                        bary(2) * tStyle_V.row(tStyle.sF(fid, 2));
+
+                    Vector3f cam_pos_float = (
+                        -viewer.core().view.block<3,3>(0,0).transpose() * viewer.core().view.block<3,1>(0,3)
+                    ).eval();
+                    Vector3d cam_pos = cam_pos_float.cast<double>();
+
+                    double dist_to_cam = (hit_point - cam_pos.transpose()).norm();
+
+                    if (dist_to_cam < min_dist) {
+                        min_dist = dist_to_cam;
+                        closest_tstyle_idx = i;
+                    }
+                }
+            }
+
+            if (closest_tstyle_idx != -1) {
+                state.selected_tstyle_idx = closest_tstyle_idx;
+                auto& selected_tstyle = data.styles_list[closest_tstyle_idx];
+                viewer.data(selected_tstyle.viewer_id).set_colors(Eigen::RowVector4d(0.0, 0.0, 1.0, 0.4));
+                return true;
+            }
+            else {
+                state.selected_tstyle_idx = -1;
+            }
+        }
+
+        // add/remove constraints (DISABLED by default - hacky fix to prevent blocking primitive selection)
+        if (!state.drawing_mode && state.place_constraints && button == 0 && false)
         {
             if (state.hovered_constr_idx != -1)
             // constraint removal
@@ -837,58 +920,6 @@ int main(int argc, char *argv[])
             return true;
         }
 
-        // select a target style mesh
-        if (!state.drawing_mode && button==0) 
-        {
-            if (state.selected_tstyle_idx != -1) {
-                auto& selected_tstyle = data.styles_list[state.selected_tstyle_idx];
-                viewer.data(selected_tstyle.viewer_id).set_colors(Eigen::RowVector4d(1.0, 1.0, 1.0, 0.4));
-            }
-            int closest_tstyle_idx = -1;
-            double min_dist = 1e20;
-
-            // ray casting
-            for (int i=0; i<data.styles_list.size(); i++) {
-                auto& tStyle = data.styles_list[i];
-                if (!tStyle.is_visible || tStyle.viewer_id == -1) continue;
-                
-                Eigen::MatrixXd tStyle_V = (tStyle.sV * tStyle.radius).rowwise() + tStyle.center;
-                int fid;
-                Vector3f bary;
-
-                if (igl::unproject_onto_mesh(Vector2f(x,y), viewer.core().view, viewer.core().proj, viewer.core().viewport, tStyle_V, tStyle.sF, fid, bary))
-                {
-                    RowVector3d hit_point =
-                        bary(0) * tStyle_V.row(tStyle.sF(fid, 0)) + 
-                        bary(1) * tStyle_V.row(tStyle.sF(fid, 1)) + 
-                        bary(2) * tStyle_V.row(tStyle.sF(fid, 2));
-
-                    Vector3f cam_pos_float = (
-                        -viewer.core().view.block<3,3>(0,0).transpose() * viewer.core().view.block<3,1>(0,3)
-                    ).eval();
-                    Vector3d cam_pos = cam_pos_float.cast<double>();
-
-                    double dist_to_cam = (hit_point - cam_pos.transpose()).norm();
-
-                    if (dist_to_cam < min_dist) {
-                        min_dist = dist_to_cam;
-                        closest_tstyle_idx = i;
-                    }
-                }
-            }
-
-            if (closest_tstyle_idx != -1) {
-                state.selected_tstyle_idx = closest_tstyle_idx;
-                auto& selected_tstyle = data.styles_list[closest_tstyle_idx];
-                viewer.data(selected_tstyle.viewer_id).set_colors(Eigen::RowVector4d(0.0, 0.0, 1.0, 0.4));
-                return true;
-            }
-            else {
-                state.selected_tstyle_idx = -1;
-            }
-
-        }
-
         return false;
     };
 
@@ -901,7 +932,7 @@ int main(int argc, char *argv[])
 
             int old_hovered = state.hovered_constr_idx;
             state.hovered_constr_idx = -1;
-            int fid; 
+            int fid;
             Vector3f bary;
 
             if(igl::unproject_onto_mesh(Vector2f(x,y), viewer.core().view, viewer.core().proj, viewer.core().viewport, V, F, fid, bary))

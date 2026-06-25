@@ -58,6 +58,30 @@ void Sphere::evalLocal(const Eigen::Vector3d& p_local, double& d, Eigen::Vector3
   grad_local = p_local / l;
 }
 
+void Sphere::setScale(const Eigen::Vector3d& s) {
+  // Check if scale has actually changed (within tolerance)
+  double change = (s - last_applied_scale).norm();
+  if (change < 1e-6) {
+    return;  // No significant change, don't apply scaling
+  }
+  
+  // Compute additive scale delta: (current_scale - last_applied_scale)
+  Eigen::Vector3d scale_delta = s - last_applied_scale;
+  // Apply uniform scale (use average delta)
+  double avg_delta = (scale_delta(0) + scale_delta(1) + scale_delta(2)) / 3.0;
+  radius += avg_delta;
+  // Clamp to minimum
+  radius = std::max(radius, 0.1);
+  scale = Eigen::Vector3d::Ones() * radius;
+  last_applied_scale = s;
+  changed = true;
+}
+
+void Sphere::resetScaleTracking() {
+  // Sync to current radius
+  last_applied_scale = Eigen::Vector3d::Ones() * radius;
+}
+
 Box::Box(Eigen::RowVector3d d, Eigen::RowVector3d c) {
   dim = d.transpose();
   position = c.transpose();
@@ -97,6 +121,29 @@ void Box::evalLocal(const Eigen::Vector3d& p_local, double& d, Eigen::Vector3d& 
     ? Eigen::Vector3d(q / l)
     : Eigen::Vector3d(w(0) == g ? 1.0 : 0.0, w(1) == g ? 1.0 : 0.0, w(2) == g ? 1.0 : 0.0);
   grad_local = localGrad.cwiseProduct(s);
+}
+
+void Box::setScale(const Eigen::Vector3d& s) {
+  // Check if scale has actually changed (within tolerance)
+  double change = (s - last_applied_scale).norm();
+  if (change < 1e-6) {
+    return;  // No significant change, don't apply scaling
+  }
+  
+  // Compute additive scale delta: (current_scale - last_applied_scale)
+  Eigen::Vector3d scale_delta = s - last_applied_scale;
+  // Apply additive scale to each dimension
+  dim = dim + scale_delta;
+  // Clamp each dimension to minimum
+  dim = dim.cwiseMax(Eigen::Vector3d::Constant(0.1));
+  scale = dim;
+  last_applied_scale = s;
+  changed = true;
+}
+
+void Box::resetScaleTracking() {
+  // Sync to current dimensions
+  last_applied_scale = dim;
 }
 
 Cylinder::Cylinder(double h, double r, Eigen::RowVector3d c) {
@@ -192,6 +239,29 @@ void SDF::setRuntimeTransform(int idx, const Eigen::Vector3d& p, const Eigen::Ma
   if (idx >= 0 && idx < (int)primitives.size()) {
     primitives[idx]->setRuntimeTransform(p, r, s);
   }
+}
+
+void SDF::setScale(int idx, const Eigen::Vector3d& s) {
+  if (idx >= 0 && idx < (int)primitives.size()) {
+    primitives[idx]->setScale(s);
+  }
+}
+
+void SDF::resetScaleTracking(int idx) {
+  if (idx >= 0 && idx < (int)primitives.size()) {
+    primitives[idx]->resetScaleTracking();
+  }
+}
+
+Eigen::Vector3d SDF::getScale(int idx) const {
+  if (idx >= 0 && idx < (int)primitives.size()) {
+    if (auto sphere = dynamic_cast<Sphere*>(primitives[idx].get())) {
+      return sphere->getScale();
+    } else if (auto box = dynamic_cast<Box*>(primitives[idx].get())) {
+      return box->getScale();
+    }
+  }
+  return Eigen::Vector3d::Ones();
 }
 
 void SDF::computeSdfVector (Eigen::MatrixXd &V, Eigen::MatrixXd &Vsdf) {
