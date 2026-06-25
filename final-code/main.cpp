@@ -609,7 +609,7 @@ int main(int argc, char *argv[])
             ImGui::BulletText("Q/W      rotate x-axis");
             ImGui::BulletText("A/S      rotate y-axis");
             ImGui::BulletText("Z/X      rotate z-axis");
-            ImGui::BulletText("L        show edges");
+            ImGui::BulletText("L        rescale");
             ImGui::Text(" ");
         }
         {
