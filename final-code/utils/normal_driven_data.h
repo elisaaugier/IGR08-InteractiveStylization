@@ -22,6 +22,8 @@ struct target_style
     double radius = 1.0;
 	double lambda = 1;
 	double falloff = 2;
+
+	std::shared_ptr<Primitive> prim_sdf = nullptr;
 };
 
 struct normal_driven_data
@@ -37,7 +39,7 @@ struct normal_driven_data
 	bool useScale = false;
 
 	std::vector<target_style> styles_list;
-	std::vector<std::shared_ptr<Primitive>> primitive_list;
+	// std::vector<std::shared_ptr<Primitive>> primitive_list;
 	Eigen::MatrixXd V0;
 
 	std::vector<double> objHis;

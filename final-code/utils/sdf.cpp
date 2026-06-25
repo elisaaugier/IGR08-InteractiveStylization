@@ -187,7 +187,7 @@ void Cylinder::evalLocal(const Eigen::Vector3d& p_local, double& d, Eigen::Vecto
 
 
 SDF::SDF() {
-  primitives = std::vector<std::unique_ptr<Primitive>>();
+  primitives = std::vector<std::shared_ptr<Primitive>>();
 }
 
 void SDF::getMesh(Eigen::MatrixXd &V, Eigen::MatrixXi &F) {

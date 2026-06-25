@@ -33,6 +33,8 @@ public:
   }
   
   virtual void resetScaleTracking() {}
+
+  virtual Eigen::Vector3d getScale() const { return scale; }
   
   void getMesh(Eigen::MatrixXd &V, Eigen::MatrixXi &F);
   virtual void eval(Eigen::RowVector3d p, double &d, Eigen::RowVector3d &grad) = 0;
@@ -80,7 +82,7 @@ protected:
 class SDF {
   public:
   SDF();
-  void addPrimitive(std::unique_ptr<Primitive> p) {primitives.push_back(std::move(p));}
+  void addPrimitive(std::shared_ptr<Primitive> p) {primitives.push_back(std::move(p));}
   void eval(Eigen::RowVector3d p, double &d, Eigen::RowVector3d &grad);
   void setRuntimeTransform(int idx, const Eigen::Vector3d& p, const Eigen::Matrix3d& r, const Eigen::Vector3d& s);
   void setScale(int idx, const Eigen::Vector3d& s);
@@ -96,7 +98,7 @@ class SDF {
     }
   };
 private:
-  std::vector<std::unique_ptr<Primitive>> primitives;
+  std::vector<std::shared_ptr<Primitive>> primitives;
 };
 
 class Sphere : public Primitive {

@@ -55,38 +55,8 @@ int main(int argc, char *argv[])
 	MatrixXi F;
     string meshName; //, styleMeshName;
     bool useFaceArap = false;
-    std::vector<target_style> styles_list;
 
-    // ~~~~~~~~~~~~~~~~~~~~~~ O N E STYLE ~~~~~~~~~~~~~~~~~~~~~~
-
-	// {   
-    //     meshName = argv[1];
-    //     styleMeshName = argv[2];
-
-    //     // get desired normals
-	// 	string styleFile = MESH_PATH + styleMeshName;
-    //     MatrixXd sV,sN;
-    //     MatrixXi sF,useless1,useless2; 
-    //     igl::read_triangle_mesh(styleFile, sV, sF);
-    //     igl::per_face_normals(sV,sF,sN);
-    //     igl::unique_rows(sN, desiredNormals, useless1, useless2);
-    //     cout << "desiredNormals.size: " << desiredNormals.rows() << ", " << desiredNormals.cols() << endl;
-
-    //     // read mesh files
-	// 	string file = MESH_PATH + meshName;
-	// 	igl::read_triangle_mesh(file, V, F);
-    //     U = V;
-    //     VO = V;
-
-        
-
-    //     // string output name 
-    //     string outputStr = styleMeshName;
-    //     outputStr.erase(outputStr.end()-4, outputStr.end());
-    //     cout << outputStr << endl;
-	// }
-
-    // ~~~~~~~~~~~~~~~~~~~~~~ MULTI-STYLES ~~~~~~~~~~~~~~~~~~~~~~
+    normal_driven_data data;
 
     meshName = argv[1];
 
@@ -99,22 +69,7 @@ int main(int argc, char *argv[])
     U = V;
     VO = V;
 
-
-    // get desired normals
-
-    // auto load_style_normals = [] (const std::string& filename) -> MatrixXd {
-    //     string styleFile = MESH_PATH + filename;
-    //     MatrixXd sV, sN, desiredNormals;
-    //     MatrixXi sF,useless1,useless2; 
-    //     igl::read_triangle_mesh(styleFile, sV, sF);
-    //     igl::per_face_normals(sV,sF,sN);
-    //     igl::unique_rows(sN, desiredNormals, useless1, useless2);
-    //     return desiredNormals;
-    // };
-
-
-    // a supprimer à la fin car utile que si formes dès l'initialiation ?
-    auto load_geometric_style = [] (const std::string& name, const std::string& filename, RowVector3d center, double lambda, double radius, double falloff)
+    auto load_geometric_style = [&] (const std::string& name, const std::string& filename, RowVector3d center, double lambda, double radius, double falloff)
         -> target_style {
         
         target_style tStyle;
@@ -132,45 +87,45 @@ int main(int argc, char *argv[])
         igl::per_face_normals(tStyle.sV, tStyle.sF, sN);
         igl::unique_rows(sN, tStyle.desiredN, useless1, useless2);
 
+        if (filename.find("cube") != std::string::npos) {
+            std::shared_ptr<Primitive> prim_ptr = std::make_shared<Box>(RowVector3d(radius, radius, radius), center);
+            tStyle.prim_sdf = prim_ptr;
+            data.SDF.addPrimitive(prim_ptr);
+        }
+        else if (filename.find("sphere") != std::string::npos) {
+            std::shared_ptr<Primitive> prim_ptr = std::make_shared<Sphere>(radius, center);
+            tStyle.prim_sdf = prim_ptr;
+            data.SDF.addPrimitive(prim_ptr);
+        }
+        else if (filename.find("cylinder") != std::string::npos) {
+            std::shared_ptr<Primitive> prim_ptr = std::make_shared<Cylinder>(radius * 2.0, radius, center);
+            tStyle.prim_sdf = prim_ptr;
+            data.SDF.addPrimitive(prim_ptr);
+        }
+
         return tStyle;
     };
 
+    // a supprimer à la fin car utile que si formes dès l'initialiation ?
 
-    // Primitive 1 
-    // geometric_style prim1;
-    // prim1.name = "cube";
-    // prim1.desiredN = load_style_normals("octahedron.obj");
-    // prim1.lambda = 1.0;
-    // prim1.center = RowVector3d(0.0, 0.5, 0.65); 
-    // prim1.radius = 0.8;
-    // prim1.falloff = 2.0;
-    // primitives_list.push_back(prim1);
 
     target_style style1 = load_geometric_style(
-        "cone", "cone.obj", RowVector3d(0.0, 0.5, 0.65), 1.0, 0.5, 2.0
-    );
-
-
-    target_style style2 = load_geometric_style(
         "cube", "cube.obj", RowVector3d(0.0, -0.5, 0.5), 1.0, 0.5, 2.0
     );
 
-    target_style style3 = load_geometric_style(
+    target_style style2 = load_geometric_style(
         "sphere", "sphere2.obj", RowVector3d(0.0, 1.0, 1.0), 1.0, 0.5, 2.0
     );
 
-    styles_list.push_back(style2);
-    styles_list.push_back(style3);
-    //styles_list.push_back(style1);
+    data.styles_list.push_back(style1);
+    data.styles_list.push_back(style2);
 
-    cout << "Loaded " << styles_list.size() << " geometric styles." << endl;
+    cout << "Loaded " << data.styles_list.size() << " geometric styles." << endl;
     cout << "Target geometric styles:" << endl;
-    for (auto& prim : styles_list) {
+    for (auto& prim : data.styles_list) {
         cout << prim.name << endl;
     }
     
-
-
     // get input output name
     // string tmp = styleMeshName;
     // tmp.erase(tmp.end()-4, tmp.end());
@@ -184,16 +139,8 @@ int main(int argc, char *argv[])
     cout << "Output file will be: " << outputName << endl;
     cout << "Input file was: " << inputName << endl;
 
-    // prepare data for stylization
-    normal_driven_data data;
+   
     data.V0 = VO;
-    // data.lambda = 1e0;
-    data.styles_list = styles_list;
-
-    data.SDF.addPrimitive(std::make_unique<Box>(RowVector3d(0.5, 0.5, 0.5), RowVector3d(0.0, -0.5, 0.5)));
-    //data.SDF.addPrimitive(std::make_unique<Box>(RowVector3d(0.7 ,0.7 ,0.7), RowVector3d(0.0, -1.5, 1.5)));
-    //data.SDF.addPrimitive(std::make_unique<Sphere>(0.7, Eigen::RowVector3d(0.0, 0.0, 0.0)));
-    data.SDF.addPrimitive(std::make_unique<Sphere>(0.4, RowVector3d(0.0, 1.0, 1.0)));
 
     // initialize viewer
     igl::opengl::glfw::Viewer viewer;
@@ -243,7 +190,14 @@ int main(int argc, char *argv[])
 
     auto render_style = [&] (target_style& tStyle) {
         tStyle.viewer_id = viewer.append_mesh();
-        MatrixXd primitive_V = (tStyle.sV * tStyle.radius).rowwise() + tStyle.center;
+        MatrixXd primitive_V = tStyle.sV;
+        if (tStyle.prim_sdf) {
+            Eigen::Vector3d scl = tStyle.prim_sdf->getScale();
+            primitive_V.col(0) *= scl(0);
+            primitive_V.col(1) *= scl(1);
+            primitive_V.col(2) *= scl(2);
+        }
+        primitive_V = primitive_V.rowwise() + tStyle.center;
         viewer.data(tStyle.viewer_id).set_mesh(primitive_V, tStyle.sF);
         viewer.data(tStyle.viewer_id).set_colors(Eigen::RowVector4d(1.0, 1.0, 1.0, 0.4));
         viewer.data(tStyle.viewer_id).show_lines = tStyle.is_visible; // display edges
@@ -339,6 +293,9 @@ int main(int argc, char *argv[])
                         Eigen::Vector3d scale(model(0,0), model(1,1), model(2,2));
                         
                         data.SDF.setRuntimeTransform(i, new_pos, Eigen::Matrix3d::Identity(), Eigen::Vector3d::Ones());
+                        if (tStyle.prim_sdf) {
+                            tStyle.prim_sdf->setRuntimeTransform(new_pos, Eigen::Matrix3d::Identity(), Eigen::Vector3d::Ones());
+                        }
                         data.SDF.getMesh(Vsdf, Fsdf);
                         viewer.data(sdfId).set_mesh(Vsdf, Fsdf);
                         viewer.data(sdfId).compute_normals();
@@ -347,15 +304,30 @@ int main(int argc, char *argv[])
                             // Update tracked scale and apply to SDF
                             gizmo_scale = scale;
                             data.SDF.setScale(i, scale);
-                            data.SDF.getMesh(Vsdf, Fsdf);
-                            viewer.data(sdfId).set_mesh(Vsdf, Fsdf);
-                            viewer.data(sdfId).compute_normals();
+                            // moi en +
+                            if (tStyle.prim_sdf) {
+                                tStyle.prim_sdf->setScale(scale); 
+                            }
+                            // data.SDF.getMesh(Vsdf, Fsdf);
+                            // viewer.data(sdfId).set_mesh(Vsdf, Fsdf);
+                            // viewer.data(sdfId).compute_normals();
                         }
 
+                        data.SDF.getMesh(Vsdf, Fsdf);
+                        viewer.data(sdfId).set_mesh(Vsdf, Fsdf);
+                        viewer.data(sdfId).compute_normals();
+
                         if (tStyle.viewer_id != -1) {
-                            Eigen::MatrixXd new_V = (tStyle.sV * tStyle.radius).rowwise() + tStyle.center;
+                            MatrixXd new_V = tStyle.sV;
+                            if (tStyle.prim_sdf) {
+                                Eigen::Vector3d scl = tStyle.prim_sdf->getScale();
+                                new_V.col(0) *= scl(0);
+                                new_V.col(1) *= scl(1);
+                                new_V.col(2) *= scl(2);
+                            }
+                            new_V = new_V.rowwise() + tStyle.center;
                             viewer.data(tStyle.viewer_id).set_vertices(new_V);
-                            viewer.data(tStyle.viewer_id).clear();
+                            // viewer.data(tStyle.viewer_id).clear();
                         }
                     }
                 }
@@ -449,16 +421,38 @@ int main(int argc, char *argv[])
                     if (ImGui::DragFloat3("Position", center_f, 0.01f)) {
                         tStyle.center << center_f[0], center_f[1], center_f[2];
                         changed = true;
+                        if (tStyle.prim_sdf) {
+                            tStyle.prim_sdf->setRuntimeTransform(tStyle.center.transpose(), Eigen::Matrix3d::Identity(), Eigen::Vector3d::Ones());
+                        }
                     }
 
                     // Sliders de Paramètres
-                    if (ImGui::DragScalar("Rayon", ImGuiDataType_Double, &tStyle.radius, 0.01f, 0, 0, "%.2f")) changed = true;
+                    // if (ImGui::DragScalar("Rayon", ImGuiDataType_Double, &tStyle.prim_sdf->getScale(), 0.01f, 0, 0, "%.2f")) changed = true;
+                    if (tStyle.prim_sdf) 
+                    {
+                        Eigen::Vector3d current_scale = tStyle.prim_sdf->getScale();
+                        double current_radius = (current_scale(0) + current_scale(1) + current_scale(2)) / 3.0;
+                        if (ImGui::DragScalar("Rayon", ImGuiDataType_Double, &current_radius, 0.01f, 0, 0, "%.2f")) 
+                        {
+                            changed = true;
+                            Eigen::Vector3d new_scale = Eigen::Vector3d::Constant(current_radius);
+                            tStyle.prim_sdf->setScale(new_scale);
+                            data.SDF.setScale(i, new_scale);
+                        }
+                    }
                     ImGui::DragScalar("Lambda (Force)", ImGuiDataType_Double, &tStyle.lambda, 0.05f, 0, 0, "%.2f");
                     ImGui::DragScalar("Falloff", ImGuiDataType_Double, &tStyle.falloff, 0.05f, 0, 0, "%.2f");
 
                     // Mise à jour visuelle du mesh transparent si on bouge un slider (position/rayon)
                     if (changed && tStyle.is_visible && show_all_targets && tStyle.viewer_id != -1) {
-                        MatrixXd new_V = (tStyle.sV * tStyle.radius).rowwise() + tStyle.center;
+                        MatrixXd new_V = tStyle.sV;
+                        if (tStyle.prim_sdf) {
+                            Eigen::Vector3d scl = tStyle.prim_sdf->getScale();
+                            new_V.col(0) *= scl(0);
+                            new_V.col(1) *= scl(1);
+                            new_V.col(2) *= scl(2);
+                        }
+                        new_V = new_V.rowwise() + tStyle.center;                       
                         viewer.data(tStyle.viewer_id).set_vertices(new_V);
                     }
 
@@ -619,13 +613,13 @@ int main(int argc, char *argv[])
             case '>':
             case '.':
             {
-                for(auto& p : styles_list) p.lambda += 0.02;
+                for(auto& p : data.styles_list) p.lambda += 0.02;
                 break;
             }
             case '<':
             case ',':
             {
-                for(auto& p : styles_list) p.lambda -= 0.02;
+                for(auto& p : data.styles_list) p.lambda -= 0.02;
                 break;
             }
             case 'R':
@@ -832,8 +826,14 @@ int main(int argc, char *argv[])
                 auto& tStyle = data.styles_list[i];
                 if (!tStyle.is_visible || tStyle.viewer_id == -1) continue;
                 
-                Eigen::MatrixXd tStyle_V = (tStyle.sV * tStyle.radius).rowwise() + tStyle.center;
-                int fid;
+                Eigen::MatrixXd tStyle_V = tStyle.sV;
+                if (tStyle.prim_sdf) {
+                    Eigen::Vector3d scl = tStyle.prim_sdf->getScale();
+                    tStyle_V.col(0) *= scl(0);
+                    tStyle_V.col(1) *= scl(1);
+                    tStyle_V.col(2) *= scl(2);
+                }
+                tStyle_V = tStyle_V.rowwise() + tStyle.center;                int fid;
                 Vector3f bary;
 
                 if (igl::unproject_onto_mesh(Vector2f(x,y), viewer.core().view, viewer.core().proj, viewer.core().viewport, tStyle_V, tStyle.sF, fid, bary))
@@ -1006,7 +1006,18 @@ int main(int argc, char *argv[])
                     
                     new_cube.viewer_id = viewer.append_mesh();
                     if (new_cube.sV.rows() > 0) {
-                        MatrixXd primitive_V = (new_cube.sV * new_cube.radius).rowwise() + new_cube.center;
+                        // MatrixXd primitive_V = (new_cube.sV * new_cube.radius).rowwise() + new_cube.center;
+                        MatrixXd primitive_V = new_cube.sV;
+                        if (new_cube.prim_sdf) {
+                            Eigen::Vector3d scl = new_cube.prim_sdf->getScale();
+                            primitive_V.col(0) *= scl(0);
+                            primitive_V.col(1) *= scl(1);
+                            primitive_V.col(2) *= scl(2);
+                        } else {
+                            // Fallback si la structure n'est pas encore totalement liée
+                            primitive_V = (new_cube.sV * new_cube.radius);
+                        }
+                        primitive_V = primitive_V.rowwise() + new_cube.center;
                         viewer.data(new_cube.viewer_id).set_mesh(primitive_V, new_cube.sF);
                         viewer.data(new_cube.viewer_id).set_colors(Eigen::RowVector4d(1.0, 0.2, 0.2, 0.5)); // Cube rouge transparent
                         viewer.data(new_cube.viewer_id).show_lines = true;
@@ -1048,18 +1059,10 @@ int main(int argc, char *argv[])
 
         // avec formes initialisées mais à enlever à la fin ?
         for (auto& tStyle : data.styles_list) {
-                // // On crée un calque secondaire pour l'octaèdre
                 // tStyle.viewer_id = viewer.append_mesh(); 
-                
-                // // On calcule sa position (X,Y,Z) et sa taille (Radius)
                 // MatrixXd primitive_V = (tStyle.sV * tStyle.radius).rowwise() + tStyle.center;
-                
-                // // On envoie le maillage de l'OCTAÈDRE sur ce calque
                 // viewer.data(tStyle.viewer_id).set_mesh(primitive_V, tStyle.sF);
-                
-                // // On le peint en Jaune Transparent (R=1.0, G=0.8, B=0.2, Alpha=0.4)
                 // viewer.data(tStyle.viewer_id).set_colors(Eigen::RowVector4d(1.0, 0.8, 0.2, 0.4)); 
-                
                 // viewer.data(tStyle.viewer_id).show_lines = true; // Optionnel: afficher les arêtes de l'octaèdre pour mieux le voir
                 // viewer.data(tStyle.viewer_id).show_faces = tStyle.is_visible;
 
