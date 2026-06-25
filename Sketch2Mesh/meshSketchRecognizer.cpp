@@ -1955,17 +1955,87 @@ void add_primitive_from_stroke(const igl::opengl::glfw::Viewer& viewer, const st
 
     if (primitiveLabel == "cube")
     {
+        MatrixXd strokeUV(state.strokePoints.rows(), 2);
+        for (int i = 0; i < state.strokePoints.rows(); ++i)
+        {
+            const Vector3d d = state.strokePoints.row(i).transpose() - center.transpose();
+            strokeUV(i, 0) = d.dot(right);
+            strokeUV(i, 1) = d.dot(up);
+        }
+
+        Eigen::Vector2d axisMajor(1.0, 0.0);
+        Eigen::Vector2d axisMinor(0.0, 1.0);
         double width = 0.0;
         double height = 0.0;
-        compute_stroke_screen_extents(width, height);
+
+        if (strokeUV.rows() > 1)
+        {
+            const Eigen::RowVector2d uvMean = strokeUV.colwise().mean();
+            const MatrixXd centeredUV = strokeUV.rowwise() - uvMean;
+
+            Eigen::Matrix2d covariance = Eigen::Matrix2d::Zero();
+            covariance = (centeredUV.transpose() * centeredUV) / double(centeredUV.rows() - 1);
+
+            Eigen::SelfAdjointEigenSolver<Eigen::Matrix2d> solver(covariance);
+            if (solver.info() == Eigen::Success)
+            {
+                axisMinor = solver.eigenvectors().col(0);
+                axisMajor = solver.eigenvectors().col(1);
+
+                double minMajor = std::numeric_limits<double>::infinity();
+                double maxMajor = -std::numeric_limits<double>::infinity();
+                double minMinor = std::numeric_limits<double>::infinity();
+                double maxMinor = -std::numeric_limits<double>::infinity();
+
+                for (int i = 0; i < centeredUV.rows(); ++i)
+                {
+                    const Eigen::Vector2d p = centeredUV.row(i).transpose();
+                    const double majorCoord = p.dot(axisMajor);
+                    const double minorCoord = p.dot(axisMinor);
+                    minMajor = std::min(minMajor, majorCoord);
+                    maxMajor = std::max(maxMajor, majorCoord);
+                    minMinor = std::min(minMinor, minorCoord);
+                    maxMinor = std::max(maxMinor, minorCoord);
+                }
+
+                width = std::max(1e-4, maxMajor - minMajor);
+                height = std::max(1e-4, maxMinor - minMinor);
+            }
+        }
+
+        if (!std::isfinite(width) || !std::isfinite(height) || width <= 1e-8 || height <= 1e-8)
+        {
+            compute_stroke_screen_extents(width, height);
+            axisMajor = Eigen::Vector2d(1.0, 0.0);
+            axisMinor = Eigen::Vector2d(0.0, 1.0);
+        }
+        else
+        {
+            width *= depthScale;
+            height *= depthScale;
+        }
+
         const double depth = 0.5 * (width + height);
         const double hx = std::max(1e-8, primHalf(0));
         const double hy = std::max(1e-8, primHalf(1));
         const double hz = std::max(1e-8, primHalf(2));
+        const double sx = (0.5 * width) / hx;
+        const double sy = (0.5 * height) / hy;
+        const double sz = (0.5 * depth) / hz;
 
-        RowVector3d scales;
-        scales << (0.5 * width) / hx, (0.5 * height) / hy, (0.5 * depth) / hz;
-        transform_with_axis_scales(scales);
+        const Vector3d majorWorld = (axisMajor(0) * right + axisMajor(1) * up).normalized();
+        const Vector3d minorWorld = (axisMinor(0) * right + axisMinor(1) * up).normalized();
+
+        MatrixXd transformed(normalizedPrimitive.rows(), 3);
+        for (int i = 0; i < normalizedPrimitive.rows(); ++i)
+        {
+            const double lx = normalizedPrimitive(i, 0) * sx;
+            const double ly = normalizedPrimitive(i, 1) * sy;
+            const double lz = normalizedPrimitive(i, 2) * sz;
+            const Vector3d world = center.transpose() + lx * majorWorld + ly * minorWorld + lz * forward;
+            transformed.row(i) = world.transpose();
+        }
+        normalizedPrimitive = transformed;
     }
     else if (primitiveLabel == "pyramid")
     {
