@@ -52,10 +52,10 @@ RM = C:\msys64\ucrt64\bin\cmake.exe -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\glad
+CMAKE_SOURCE_DIR = C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\glad
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\glad
+CMAKE_BINARY_DIR = C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\glad
 
 # Utility rule file for glad-download.
 
@@ -76,54 +76,54 @@ CMakeFiles/glad-download-complete: glad-download-prefix/src/glad-download-stamp/
 CMakeFiles/glad-download-complete: glad-download-prefix/src/glad-download-stamp/glad-download-build
 CMakeFiles/glad-download-complete: glad-download-prefix/src/glad-download-stamp/glad-download-install
 CMakeFiles/glad-download-complete: glad-download-prefix/src/glad-download-stamp/glad-download-test
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\glad\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Completed 'glad-download'"
-	C:\msys64\ucrt64\bin\cmake.exe -E make_directory C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/glad/CMakeFiles
-	C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/glad/CMakeFiles/glad-download-complete
-	C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/glad/glad-download-prefix/src/glad-download-stamp/glad-download-done
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\glad\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Completed 'glad-download'"
+	C:\msys64\ucrt64\bin\cmake.exe -E make_directory C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/glad/CMakeFiles
+	C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/glad/CMakeFiles/glad-download-complete
+	C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/glad/glad-download-prefix/src/glad-download-stamp/glad-download-done
 
 glad-download-prefix/src/glad-download-stamp/glad-download-build: glad-download-prefix/src/glad-download-stamp/glad-download-configure
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\glad\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "No build step for 'glad-download'"
-	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\build\glad-build && C:\msys64\ucrt64\bin\cmake.exe -E echo_append
-	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\build\glad-build && C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/glad/glad-download-prefix/src/glad-download-stamp/glad-download-build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\glad\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "No build step for 'glad-download'"
+	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\build\glad-build && C:\msys64\ucrt64\bin\cmake.exe -E echo_append
+	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\build\glad-build && C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/glad/glad-download-prefix/src/glad-download-stamp/glad-download-build
 
 glad-download-prefix/src/glad-download-stamp/glad-download-configure: glad-download-prefix/tmp/glad-download-cfgcmd.txt
 glad-download-prefix/src/glad-download-stamp/glad-download-configure: glad-download-prefix/src/glad-download-stamp/glad-download-patch
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\glad\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "No configure step for 'glad-download'"
-	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\build\glad-build && C:\msys64\ucrt64\bin\cmake.exe -E echo_append
-	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\build\glad-build && C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/glad/glad-download-prefix/src/glad-download-stamp/glad-download-configure
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\glad\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "No configure step for 'glad-download'"
+	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\build\glad-build && C:\msys64\ucrt64\bin\cmake.exe -E echo_append
+	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\build\glad-build && C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/glad/glad-download-prefix/src/glad-download-stamp/glad-download-configure
 
 glad-download-prefix/src/glad-download-stamp/glad-download-download: glad-download-prefix/src/glad-download-stamp/glad-download-gitinfo.txt
 glad-download-prefix/src/glad-download-stamp/glad-download-download: glad-download-prefix/src/glad-download-stamp/glad-download-mkdir
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\glad\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Performing download step (git clone) for 'glad-download'"
-	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external && C:\msys64\ucrt64\bin\cmake.exe -DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE -P C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/glad/glad-download-prefix/tmp/glad-download-gitclone.cmake
-	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external && C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/glad/glad-download-prefix/src/glad-download-stamp/glad-download-download
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\glad\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Performing download step (git clone) for 'glad-download'"
+	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external && C:\msys64\ucrt64\bin\cmake.exe -DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE -P C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/glad/glad-download-prefix/tmp/glad-download-gitclone.cmake
+	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external && C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/glad/glad-download-prefix/src/glad-download-stamp/glad-download-download
 
 glad-download-prefix/src/glad-download-stamp/glad-download-install: glad-download-prefix/src/glad-download-stamp/glad-download-build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\glad\CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "No install step for 'glad-download'"
-	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\build\glad-build && C:\msys64\ucrt64\bin\cmake.exe -E echo_append
-	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\build\glad-build && C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/glad/glad-download-prefix/src/glad-download-stamp/glad-download-install
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\glad\CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "No install step for 'glad-download'"
+	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\build\glad-build && C:\msys64\ucrt64\bin\cmake.exe -E echo_append
+	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\build\glad-build && C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/glad/glad-download-prefix/src/glad-download-stamp/glad-download-install
 
 glad-download-prefix/src/glad-download-stamp/glad-download-mkdir:
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\glad\CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Creating directories for 'glad-download'"
-	C:\msys64\ucrt64\bin\cmake.exe -Dcfgdir= -P C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/glad/glad-download-prefix/tmp/glad-download-mkdirs.cmake
-	C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/glad/glad-download-prefix/src/glad-download-stamp/glad-download-mkdir
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\glad\CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Creating directories for 'glad-download'"
+	C:\msys64\ucrt64\bin\cmake.exe -Dcfgdir= -P C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/glad/glad-download-prefix/tmp/glad-download-mkdirs.cmake
+	C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/glad/glad-download-prefix/src/glad-download-stamp/glad-download-mkdir
 
 glad-download-prefix/src/glad-download-stamp/glad-download-patch: glad-download-prefix/src/glad-download-stamp/glad-download-patch-info.txt
 glad-download-prefix/src/glad-download-stamp/glad-download-patch: glad-download-prefix/src/glad-download-stamp/glad-download-update
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\glad\CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "No patch step for 'glad-download'"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\glad\CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "No patch step for 'glad-download'"
 	C:\msys64\ucrt64\bin\cmake.exe -E echo_append
-	C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/glad/glad-download-prefix/src/glad-download-stamp/glad-download-patch
+	C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/glad/glad-download-prefix/src/glad-download-stamp/glad-download-patch
 
 glad-download-prefix/src/glad-download-stamp/glad-download-test: glad-download-prefix/src/glad-download-stamp/glad-download-install
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\glad\CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "No test step for 'glad-download'"
-	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\build\glad-build && C:\msys64\ucrt64\bin\cmake.exe -E echo_append
-	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\build\glad-build && C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/glad/glad-download-prefix/src/glad-download-stamp/glad-download-test
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\glad\CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "No test step for 'glad-download'"
+	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\build\glad-build && C:\msys64\ucrt64\bin\cmake.exe -E echo_append
+	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\build\glad-build && C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/glad/glad-download-prefix/src/glad-download-stamp/glad-download-test
 
 glad-download-prefix/src/glad-download-stamp/glad-download-update: glad-download-prefix/tmp/glad-download-gitupdate.cmake
 glad-download-prefix/src/glad-download-stamp/glad-download-update: glad-download-prefix/src/glad-download-stamp/glad-download-update-info.txt
 glad-download-prefix/src/glad-download-stamp/glad-download-update: glad-download-prefix/src/glad-download-stamp/glad-download-download
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\glad\CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Performing update step for 'glad-download'"
-	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\glad && C:\msys64\ucrt64\bin\cmake.exe -Dcan_fetch=YES -DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE -P C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/glad/glad-download-prefix/tmp/glad-download-gitupdate.cmake
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\glad\CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Performing update step for 'glad-download'"
+	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\glad && C:\msys64\ucrt64\bin\cmake.exe -Dcan_fetch=YES -DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE -P C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/glad/glad-download-prefix/tmp/glad-download-gitupdate.cmake
 
 CMakeFiles/glad-download.dir/codegen:
 .PHONY : CMakeFiles/glad-download.dir/codegen
@@ -150,6 +150,6 @@ CMakeFiles/glad-download.dir/clean:
 .PHONY : CMakeFiles/glad-download.dir/clean
 
 CMakeFiles/glad-download.dir/depend:
-	$(CMAKE_COMMAND) -E cmake_depends "MinGW Makefiles" C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\glad C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\glad C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\glad C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\glad C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\glad\CMakeFiles\glad-download.dir\DependInfo.cmake "--color=$(COLOR)" glad-download
+	$(CMAKE_COMMAND) -E cmake_depends "MinGW Makefiles" C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\glad C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\glad C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\glad C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\glad C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\glad\CMakeFiles\glad-download.dir\DependInfo.cmake "--color=$(COLOR)" glad-download
 .PHONY : CMakeFiles/glad-download.dir/depend
 

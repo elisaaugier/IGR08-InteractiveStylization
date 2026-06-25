@@ -52,10 +52,10 @@ RM = C:\msys64\ucrt64\bin\cmake.exe -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\glfw
+CMAKE_SOURCE_DIR = C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\glfw
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\glfw
+CMAKE_BINARY_DIR = C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\glfw
 
 # Utility rule file for glfw-download.
 
@@ -76,54 +76,54 @@ CMakeFiles/glfw-download-complete: glfw-download-prefix/src/glfw-download-stamp/
 CMakeFiles/glfw-download-complete: glfw-download-prefix/src/glfw-download-stamp/glfw-download-build
 CMakeFiles/glfw-download-complete: glfw-download-prefix/src/glfw-download-stamp/glfw-download-install
 CMakeFiles/glfw-download-complete: glfw-download-prefix/src/glfw-download-stamp/glfw-download-test
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\glfw\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Completed 'glfw-download'"
-	C:\msys64\ucrt64\bin\cmake.exe -E make_directory C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/glfw/CMakeFiles
-	C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/glfw/CMakeFiles/glfw-download-complete
-	C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/glfw/glfw-download-prefix/src/glfw-download-stamp/glfw-download-done
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\glfw\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Completed 'glfw-download'"
+	C:\msys64\ucrt64\bin\cmake.exe -E make_directory C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/glfw/CMakeFiles
+	C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/glfw/CMakeFiles/glfw-download-complete
+	C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/glfw/glfw-download-prefix/src/glfw-download-stamp/glfw-download-done
 
 glfw-download-prefix/src/glfw-download-stamp/glfw-download-build: glfw-download-prefix/src/glfw-download-stamp/glfw-download-configure
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\glfw\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "No build step for 'glfw-download'"
-	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\build\glfw-build && C:\msys64\ucrt64\bin\cmake.exe -E echo_append
-	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\build\glfw-build && C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/glfw/glfw-download-prefix/src/glfw-download-stamp/glfw-download-build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\glfw\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "No build step for 'glfw-download'"
+	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\build\glfw-build && C:\msys64\ucrt64\bin\cmake.exe -E echo_append
+	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\build\glfw-build && C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/glfw/glfw-download-prefix/src/glfw-download-stamp/glfw-download-build
 
 glfw-download-prefix/src/glfw-download-stamp/glfw-download-configure: glfw-download-prefix/tmp/glfw-download-cfgcmd.txt
 glfw-download-prefix/src/glfw-download-stamp/glfw-download-configure: glfw-download-prefix/src/glfw-download-stamp/glfw-download-patch
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\glfw\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "No configure step for 'glfw-download'"
-	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\build\glfw-build && C:\msys64\ucrt64\bin\cmake.exe -E echo_append
-	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\build\glfw-build && C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/glfw/glfw-download-prefix/src/glfw-download-stamp/glfw-download-configure
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\glfw\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "No configure step for 'glfw-download'"
+	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\build\glfw-build && C:\msys64\ucrt64\bin\cmake.exe -E echo_append
+	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\build\glfw-build && C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/glfw/glfw-download-prefix/src/glfw-download-stamp/glfw-download-configure
 
 glfw-download-prefix/src/glfw-download-stamp/glfw-download-download: glfw-download-prefix/src/glfw-download-stamp/glfw-download-gitinfo.txt
 glfw-download-prefix/src/glfw-download-stamp/glfw-download-download: glfw-download-prefix/src/glfw-download-stamp/glfw-download-mkdir
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\glfw\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Performing download step (git clone) for 'glfw-download'"
-	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external && C:\msys64\ucrt64\bin\cmake.exe -DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE -P C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/glfw/glfw-download-prefix/tmp/glfw-download-gitclone.cmake
-	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external && C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/glfw/glfw-download-prefix/src/glfw-download-stamp/glfw-download-download
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\glfw\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Performing download step (git clone) for 'glfw-download'"
+	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external && C:\msys64\ucrt64\bin\cmake.exe -DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE -P C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/glfw/glfw-download-prefix/tmp/glfw-download-gitclone.cmake
+	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external && C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/glfw/glfw-download-prefix/src/glfw-download-stamp/glfw-download-download
 
 glfw-download-prefix/src/glfw-download-stamp/glfw-download-install: glfw-download-prefix/src/glfw-download-stamp/glfw-download-build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\glfw\CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "No install step for 'glfw-download'"
-	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\build\glfw-build && C:\msys64\ucrt64\bin\cmake.exe -E echo_append
-	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\build\glfw-build && C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/glfw/glfw-download-prefix/src/glfw-download-stamp/glfw-download-install
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\glfw\CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "No install step for 'glfw-download'"
+	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\build\glfw-build && C:\msys64\ucrt64\bin\cmake.exe -E echo_append
+	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\build\glfw-build && C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/glfw/glfw-download-prefix/src/glfw-download-stamp/glfw-download-install
 
 glfw-download-prefix/src/glfw-download-stamp/glfw-download-mkdir:
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\glfw\CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Creating directories for 'glfw-download'"
-	C:\msys64\ucrt64\bin\cmake.exe -Dcfgdir= -P C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/glfw/glfw-download-prefix/tmp/glfw-download-mkdirs.cmake
-	C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/glfw/glfw-download-prefix/src/glfw-download-stamp/glfw-download-mkdir
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\glfw\CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Creating directories for 'glfw-download'"
+	C:\msys64\ucrt64\bin\cmake.exe -Dcfgdir= -P C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/glfw/glfw-download-prefix/tmp/glfw-download-mkdirs.cmake
+	C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/glfw/glfw-download-prefix/src/glfw-download-stamp/glfw-download-mkdir
 
 glfw-download-prefix/src/glfw-download-stamp/glfw-download-patch: glfw-download-prefix/src/glfw-download-stamp/glfw-download-patch-info.txt
 glfw-download-prefix/src/glfw-download-stamp/glfw-download-patch: glfw-download-prefix/src/glfw-download-stamp/glfw-download-update
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\glfw\CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "No patch step for 'glfw-download'"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\glfw\CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "No patch step for 'glfw-download'"
 	C:\msys64\ucrt64\bin\cmake.exe -E echo_append
-	C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/glfw/glfw-download-prefix/src/glfw-download-stamp/glfw-download-patch
+	C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/glfw/glfw-download-prefix/src/glfw-download-stamp/glfw-download-patch
 
 glfw-download-prefix/src/glfw-download-stamp/glfw-download-test: glfw-download-prefix/src/glfw-download-stamp/glfw-download-install
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\glfw\CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "No test step for 'glfw-download'"
-	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\build\glfw-build && C:\msys64\ucrt64\bin\cmake.exe -E echo_append
-	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\build\glfw-build && C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/glfw/glfw-download-prefix/src/glfw-download-stamp/glfw-download-test
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\glfw\CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "No test step for 'glfw-download'"
+	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\build\glfw-build && C:\msys64\ucrt64\bin\cmake.exe -E echo_append
+	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\build\glfw-build && C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/glfw/glfw-download-prefix/src/glfw-download-stamp/glfw-download-test
 
 glfw-download-prefix/src/glfw-download-stamp/glfw-download-update: glfw-download-prefix/tmp/glfw-download-gitupdate.cmake
 glfw-download-prefix/src/glfw-download-stamp/glfw-download-update: glfw-download-prefix/src/glfw-download-stamp/glfw-download-update-info.txt
 glfw-download-prefix/src/glfw-download-stamp/glfw-download-update: glfw-download-prefix/src/glfw-download-stamp/glfw-download-download
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\glfw\CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Performing update step for 'glfw-download'"
-	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\glfw && C:\msys64\ucrt64\bin\cmake.exe -Dcan_fetch=YES -DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE -P C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/glfw/glfw-download-prefix/tmp/glfw-download-gitupdate.cmake
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\glfw\CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Performing update step for 'glfw-download'"
+	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\glfw && C:\msys64\ucrt64\bin\cmake.exe -Dcan_fetch=YES -DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE -P C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/glfw/glfw-download-prefix/tmp/glfw-download-gitupdate.cmake
 
 CMakeFiles/glfw-download.dir/codegen:
 .PHONY : CMakeFiles/glfw-download.dir/codegen
@@ -150,6 +150,6 @@ CMakeFiles/glfw-download.dir/clean:
 .PHONY : CMakeFiles/glfw-download.dir/clean
 
 CMakeFiles/glfw-download.dir/depend:
-	$(CMAKE_COMMAND) -E cmake_depends "MinGW Makefiles" C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\glfw C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\glfw C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\glfw C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\glfw C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\glfw\CMakeFiles\glfw-download.dir\DependInfo.cmake "--color=$(COLOR)" glfw-download
+	$(CMAKE_COMMAND) -E cmake_depends "MinGW Makefiles" C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\glfw C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\glfw C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\glfw C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\glfw C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\glfw\CMakeFiles\glfw-download.dir\DependInfo.cmake "--color=$(COLOR)" glfw-download
 .PHONY : CMakeFiles/glfw-download.dir/depend
 

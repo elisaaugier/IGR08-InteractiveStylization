@@ -56,10 +56,10 @@ RM = C:\msys64\ucrt64\bin\cmake.exe -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\imgui
+CMAKE_SOURCE_DIR = C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\imgui
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\imgui
+CMAKE_BINARY_DIR = C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\imgui
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -86,9 +86,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\imgui\CMakeFiles C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\imgui\\CMakeFiles\progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\imgui\CMakeFiles C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\imgui\\CMakeFiles\progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\imgui\CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\imgui\CMakeFiles 0
 .PHONY : all
 
 # The main clean target
