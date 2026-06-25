@@ -54,17 +54,35 @@ void multi_snap_normals(
                 pos_i = (U.row(F(i,0)) + U.row(F(i,1)) + U.row(F(i,2))) / 3.0;
             else if (nEle == U.rows())
                 pos_i = U.row(i);
+
+            double d;
+            RowVector3d grad;
+            prim.prim_sdf->eval(pos_i, d, grad);
             
-            double dist = (pos_i - prim.center).norm();
+            // double dist = (pos_i - prim.center).norm();
             
-            if (dist < prim.radius)
+            // if (dist < prim.radius)
+
+            double weight = 0;
+
+            if (d < 0.0)
             {
-                double weight = pow(1.0 - (dist / prim.radius), prim.falloff);
-                
-                accumulated_N.row(i) += local_snap.row(i) * weight;
-                data.lambdaVec(i) += prim.lambda * weight;
-                total_weights(i) += weight;
+                // double weight = pow(1.0 - (dist / prim.radius), prim.falloff);
+
+                RowVector3d Q = pos_i - d * grad; // projected point
+                double max_internal_dist = (Q - prim.center).norm();
+                if (max_internal_dist > 1e-6) {
+                    weight = std::abs(d) / max_internal_dist;
+                } else {
+                    weight = 1.0;
+                }
             }
+
+            weight = pow(weight, prim.falloff);
+
+            accumulated_N.row(i) += local_snap.row(i) * weight;
+            data.lambdaVec(i) += prim.lambda * weight;
+            total_weights(i) += weight;
         }
     } 
     
