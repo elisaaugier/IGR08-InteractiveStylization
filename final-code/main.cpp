@@ -97,6 +97,7 @@ int main(int argc, char *argv[])
     U = V;
     VO = V;
 
+
     // get desired normals
 
     // auto load_style_normals = [] (const std::string& filename) -> MatrixXd {
@@ -152,8 +153,13 @@ int main(int argc, char *argv[])
         "cube", "cube.obj", RowVector3d(0.0, -0.5, 0.5), 1.0, 0.5, 2.0
     );
 
+    target_style style3 = load_geometric_style(
+        "sphere", "sphere2.obj", RowVector3d(0.0, 1.0, 1.0), 1.0, 0.5, 2.0
+    );
+
     styles_list.push_back(style2);
-    styles_list.push_back(style1);
+    styles_list.push_back(style3);
+    //styles_list.push_back(style1);
 
     cout << "Loaded " << styles_list.size() << " geometric styles." << endl;
     cout << "Target geometric styles:" << endl;
@@ -178,13 +184,14 @@ int main(int argc, char *argv[])
 
     // prepare data for stylization
     normal_driven_data data;
+    data.V0 = VO;
     // data.lambda = 1e0;
     data.styles_list = styles_list;
 
-    data.SDF.addPrimitive(std::make_unique<Box>(RowVector3d(0.4, 0.3, 0.3), RowVector3d(0.0, -0.5, 0.5)));
+    data.SDF.addPrimitive(std::make_unique<Box>(RowVector3d(0.5, 0.5, 0.5), RowVector3d(0.0, -0.5, 0.5)));
     //data.SDF.addPrimitive(std::make_unique<Box>(RowVector3d(0.7 ,0.7 ,0.7), RowVector3d(0.0, -1.5, 1.5)));
     //data.SDF.addPrimitive(std::make_unique<Sphere>(0.7, Eigen::RowVector3d(0.0, 0.0, 0.0)));
-    data.SDF.addPrimitive(std::make_unique<Sphere>(0.4, RowVector3d(0.0, 0.5, 0.65)));
+    data.SDF.addPrimitive(std::make_unique<Sphere>(0.5, RowVector3d(0.0, 1.0, 1.0)));
 
     // initialize viewer
     igl::opengl::glfw::Viewer viewer;

@@ -214,7 +214,7 @@ void SDF::computeSdfVector3 (Eigen::MatrixXd &V, Eigen::MatrixXd &Vsdf) {
     auto p = V.row(i);
     this->eval(p, d, grad);
     grad.normalize();
-    Vsdf.row(i) = p - alpha * grad;  // Current position + step along gradient
+    Vsdf.row(i) = p - alpha * grad * (d >= 0 ? 1.0 : -1.0);  // Current position + step along gradient
   }
 }
 

@@ -146,18 +146,27 @@ void normal_driven_prim_single_iteration(
             PP(i + 1 * U.rows()) = U(i, 1);
             PP(i + 2 * U.rows()) = U(i, 2);
         }
+        VectorXd VO;
+        VO.resize(U.rows() * 3, 1);
+        for (int i=0; i<U.rows(); i++) {
+            VO(i) = data.V0(i, 0);
+            VO(i + 1 * U.rows()) = data.V0(i, 1);
+            VO(i + 2 * U.rows()) = data.V0(i, 2);
+        }
 
         for(int dim=0; dim<U.cols(); dim++)
         {
-            VectorXd Uc,Bc,bcc, Vc, Pc;
+            VectorXd Uc,Bc,bcc, Vc, Pc, VOc;
             Bc = Bcol.block(dim*nV,0,nV,1);
             Vc = VsdfCol.block(dim*U.rows(),0,U.rows(),1);
+            VOc = VO.block(dim*U.rows(),0,U.rows(),1);
             Pc = PP.block(dim*U.rows(),0,U.rows(),1);
             bcc = data.bc.col(dim);
             //min_quad_with_fixed_solve(
             //    data.solver_data,Bc,bcc,VectorXd(),Uc);
+            //min_quad_with_fixed_solve(data.solver_data,Bc + data.gamma * Vc,data.gamma == 0.0 ? bcc : VectorXd(),VectorXd(),Uc);
             min_quad_with_fixed_solve(
-                data.solver_data,Bc + data.gamma * Vc,VectorXd(),VectorXd(),Uc);
+                data.solver_data,Bc + data.gamma * Vc + 0.01*VOc,data.gamma == 0.0 ? bcc : VectorXd(),VectorXd(),Uc);
             U.col(dim) = Uc;
         }
     }

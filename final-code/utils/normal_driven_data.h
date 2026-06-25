@@ -38,6 +38,7 @@ struct normal_driven_data
 
 	std::vector<target_style> styles_list;
 	std::vector<std::shared_ptr<Primitive>> primitive_list;
+	Eigen::MatrixXd V0;
 
 	std::vector<double> objHis;
 	std::vector<Eigen::MatrixXi> E_N;

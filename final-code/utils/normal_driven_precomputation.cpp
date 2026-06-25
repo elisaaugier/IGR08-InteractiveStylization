@@ -119,13 +119,13 @@ void normal_driven_precomputation_vertex(
 
     SparseMatrix<double> I(data.Q.rows(), data.Q.cols());
     I.setIdentity();
-    data.Q = data.Q - data.gamma * I;
+    data.Q = data.Q - (data.gamma + 0.01) * I;
+    //data.Q = data.Q - data.gamma * I;
     
     // construct K1 K2 for the RHS
     data.K.resize(9*nV, 3*nV);
     data.K.setFromTriplets(KIJV.begin(),KIJV.end());
-
-    igl::min_quad_with_fixed_precompute(data.Q,VectorXi(),SparseMatrix<double>(),false,data.solver_data);
+    igl::min_quad_with_fixed_precompute(data.Q,data.gamma == 0.0 ? data.b :VectorXi(),SparseMatrix<double>(),false,data.solver_data);
     //igl::min_quad_with_fixed_precompute(data.Q,data.b,SparseMatrix<double>(),false,data.solver_data);
 }
 
