@@ -1,15 +1,33 @@
+# Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
+# file LICENSE.rst or https://cmake.org/licensing for details.
 
-if(NOT "C:/Users/jbcou/Documents/IG08/IGR08-InteractiveStylization/final-code/libigl/external/.cache/eigen/eigen-download-prefix/src/eigen-download-stamp/eigen-download-gitinfo.txt" IS_NEWER_THAN "C:/Users/jbcou/Documents/IG08/IGR08-InteractiveStylization/final-code/libigl/external/.cache/eigen/eigen-download-prefix/src/eigen-download-stamp/eigen-download-gitclone-lastrun.txt")
-  message(STATUS "Avoiding repeated git clone, stamp file is up to date: 'C:/Users/jbcou/Documents/IG08/IGR08-InteractiveStylization/final-code/libigl/external/.cache/eigen/eigen-download-prefix/src/eigen-download-stamp/eigen-download-gitclone-lastrun.txt'")
+cmake_minimum_required(VERSION ${CMAKE_VERSION}) # this file comes with cmake
+
+if(EXISTS "C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/eigen/eigen-download-prefix/src/eigen-download-stamp/eigen-download-gitclone-lastrun.txt" AND EXISTS "C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/eigen/eigen-download-prefix/src/eigen-download-stamp/eigen-download-gitinfo.txt" AND
+  "C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/eigen/eigen-download-prefix/src/eigen-download-stamp/eigen-download-gitclone-lastrun.txt" IS_NEWER_THAN "C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/eigen/eigen-download-prefix/src/eigen-download-stamp/eigen-download-gitinfo.txt")
+  message(VERBOSE
+    "Avoiding repeated git clone, stamp file is up to date: "
+    "'C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/eigen/eigen-download-prefix/src/eigen-download-stamp/eigen-download-gitclone-lastrun.txt'"
+  )
   return()
 endif()
 
+# Even at VERBOSE level, we don't want to see the commands executed, but
+# enabling them to be shown for DEBUG may be useful to help diagnose problems.
+cmake_language(GET_MESSAGE_LOG_LEVEL active_log_level)
+if(active_log_level MATCHES "DEBUG|TRACE")
+  set(maybe_show_command COMMAND_ECHO STDOUT)
+else()
+  set(maybe_show_command "")
+endif()
+
 execute_process(
-  COMMAND ${CMAKE_COMMAND} -E rm -rf "C:/Users/jbcou/Documents/IG08/IGR08-InteractiveStylization/final-code/libigl/cmake/../external/eigen"
+  COMMAND ${CMAKE_COMMAND} -E rm -rf "C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/cmake/../external/eigen"
   RESULT_VARIABLE error_code
-  )
+  ${maybe_show_command}
+)
 if(error_code)
-  message(FATAL_ERROR "Failed to remove directory: 'C:/Users/jbcou/Documents/IG08/IGR08-InteractiveStylization/final-code/libigl/cmake/../external/eigen'")
+  message(FATAL_ERROR "Failed to remove directory: 'C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/cmake/../external/eigen'")
 endif()
 
 # try the clone 3 times in case there is an odd git clone issue
@@ -17,25 +35,28 @@ set(error_code 1)
 set(number_of_tries 0)
 while(error_code AND number_of_tries LESS 3)
   execute_process(
-    COMMAND "C:/Program Files/Git/cmd/git.exe" -c http.sslVerify=false clone --no-checkout --config "advice.detachedHead=false" --config "advice.detachedHead=false" "https://github.com/eigenteam/eigen-git-mirror.git" "eigen"
-    WORKING_DIRECTORY "C:/Users/jbcou/Documents/IG08/IGR08-InteractiveStylization/final-code/libigl/cmake/../external"
+    COMMAND "C:/msys64/usr/bin/git.exe"
+            clone --no-checkout --config "advice.detachedHead=false" --config "advice.detachedHead=false" -c http.sslVerify=false "https://github.com/eigenteam/eigen-git-mirror.git" "eigen"
+    WORKING_DIRECTORY "C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/cmake/../external"
     RESULT_VARIABLE error_code
-    )
+    ${maybe_show_command}
+  )
   math(EXPR number_of_tries "${number_of_tries} + 1")
 endwhile()
 if(number_of_tries GREATER 1)
-  message(STATUS "Had to git clone more than once:
-          ${number_of_tries} times.")
+  message(NOTICE "Had to git clone more than once: ${number_of_tries} times.")
 endif()
 if(error_code)
   message(FATAL_ERROR "Failed to clone repository: 'https://github.com/eigenteam/eigen-git-mirror.git'")
 endif()
 
 execute_process(
-  COMMAND "C:/Program Files/Git/cmd/git.exe" -c http.sslVerify=false checkout 3.2.10 --
-  WORKING_DIRECTORY "C:/Users/jbcou/Documents/IG08/IGR08-InteractiveStylization/final-code/libigl/cmake/../external/eigen"
+  COMMAND "C:/msys64/usr/bin/git.exe"
+          checkout "3.2.10" --
+  WORKING_DIRECTORY "C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/cmake/../external/eigen"
   RESULT_VARIABLE error_code
-  )
+  ${maybe_show_command}
+)
 if(error_code)
   message(FATAL_ERROR "Failed to checkout tag: '3.2.10'")
 endif()
@@ -43,24 +64,24 @@ endif()
 set(init_submodules TRUE)
 if(init_submodules)
   execute_process(
-    COMMAND "C:/Program Files/Git/cmd/git.exe" -c http.sslVerify=false submodule update --recursive --init 
-    WORKING_DIRECTORY "C:/Users/jbcou/Documents/IG08/IGR08-InteractiveStylization/final-code/libigl/cmake/../external/eigen"
+    COMMAND "C:/msys64/usr/bin/git.exe" -c;http.sslVerify=false
+            submodule update --recursive --init 
+    WORKING_DIRECTORY "C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/cmake/../external/eigen"
     RESULT_VARIABLE error_code
-    )
+    ${maybe_show_command}
+  )
 endif()
 if(error_code)
-  message(FATAL_ERROR "Failed to update submodules in: 'C:/Users/jbcou/Documents/IG08/IGR08-InteractiveStylization/final-code/libigl/cmake/../external/eigen'")
+  message(FATAL_ERROR "Failed to update submodules in: 'C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/cmake/../external/eigen'")
 endif()
 
 # Complete success, update the script-last-run stamp file:
 #
 execute_process(
-  COMMAND ${CMAKE_COMMAND} -E copy
-    "C:/Users/jbcou/Documents/IG08/IGR08-InteractiveStylization/final-code/libigl/external/.cache/eigen/eigen-download-prefix/src/eigen-download-stamp/eigen-download-gitinfo.txt"
-    "C:/Users/jbcou/Documents/IG08/IGR08-InteractiveStylization/final-code/libigl/external/.cache/eigen/eigen-download-prefix/src/eigen-download-stamp/eigen-download-gitclone-lastrun.txt"
+  COMMAND ${CMAKE_COMMAND} -E copy "C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/eigen/eigen-download-prefix/src/eigen-download-stamp/eigen-download-gitinfo.txt" "C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/eigen/eigen-download-prefix/src/eigen-download-stamp/eigen-download-gitclone-lastrun.txt"
   RESULT_VARIABLE error_code
-  )
+  ${maybe_show_command}
+)
 if(error_code)
-  message(FATAL_ERROR "Failed to copy script-last-run stamp file: 'C:/Users/jbcou/Documents/IG08/IGR08-InteractiveStylization/final-code/libigl/external/.cache/eigen/eigen-download-prefix/src/eigen-download-stamp/eigen-download-gitclone-lastrun.txt'")
+  message(FATAL_ERROR "Failed to copy script-last-run stamp file: 'C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/eigen/eigen-download-prefix/src/eigen-download-stamp/eigen-download-gitclone-lastrun.txt'")
 endif()
-

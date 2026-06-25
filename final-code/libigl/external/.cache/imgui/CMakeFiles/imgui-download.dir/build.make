@@ -52,10 +52,10 @@ RM = C:\msys64\ucrt64\bin\cmake.exe -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\imgui
+CMAKE_SOURCE_DIR = C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\imgui
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\imgui
+CMAKE_BINARY_DIR = C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\imgui
 
 # Utility rule file for imgui-download.
 
@@ -76,54 +76,54 @@ CMakeFiles/imgui-download-complete: imgui-download-prefix/src/imgui-download-sta
 CMakeFiles/imgui-download-complete: imgui-download-prefix/src/imgui-download-stamp/imgui-download-build
 CMakeFiles/imgui-download-complete: imgui-download-prefix/src/imgui-download-stamp/imgui-download-install
 CMakeFiles/imgui-download-complete: imgui-download-prefix/src/imgui-download-stamp/imgui-download-test
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\imgui\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Completed 'imgui-download'"
-	C:\msys64\ucrt64\bin\cmake.exe -E make_directory C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/imgui/CMakeFiles
-	C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/imgui/CMakeFiles/imgui-download-complete
-	C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/imgui/imgui-download-prefix/src/imgui-download-stamp/imgui-download-done
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\imgui\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Completed 'imgui-download'"
+	C:\msys64\ucrt64\bin\cmake.exe -E make_directory C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/imgui/CMakeFiles
+	C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/imgui/CMakeFiles/imgui-download-complete
+	C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/imgui/imgui-download-prefix/src/imgui-download-stamp/imgui-download-done
 
 imgui-download-prefix/src/imgui-download-stamp/imgui-download-build: imgui-download-prefix/src/imgui-download-stamp/imgui-download-configure
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\imgui\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "No build step for 'imgui-download'"
-	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\build\imgui-build && C:\msys64\ucrt64\bin\cmake.exe -E echo_append
-	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\build\imgui-build && C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/imgui/imgui-download-prefix/src/imgui-download-stamp/imgui-download-build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\imgui\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "No build step for 'imgui-download'"
+	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\build\imgui-build && C:\msys64\ucrt64\bin\cmake.exe -E echo_append
+	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\build\imgui-build && C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/imgui/imgui-download-prefix/src/imgui-download-stamp/imgui-download-build
 
 imgui-download-prefix/src/imgui-download-stamp/imgui-download-configure: imgui-download-prefix/tmp/imgui-download-cfgcmd.txt
 imgui-download-prefix/src/imgui-download-stamp/imgui-download-configure: imgui-download-prefix/src/imgui-download-stamp/imgui-download-patch
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\imgui\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "No configure step for 'imgui-download'"
-	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\build\imgui-build && C:\msys64\ucrt64\bin\cmake.exe -E echo_append
-	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\build\imgui-build && C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/imgui/imgui-download-prefix/src/imgui-download-stamp/imgui-download-configure
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\imgui\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "No configure step for 'imgui-download'"
+	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\build\imgui-build && C:\msys64\ucrt64\bin\cmake.exe -E echo_append
+	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\build\imgui-build && C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/imgui/imgui-download-prefix/src/imgui-download-stamp/imgui-download-configure
 
 imgui-download-prefix/src/imgui-download-stamp/imgui-download-download: imgui-download-prefix/src/imgui-download-stamp/imgui-download-gitinfo.txt
 imgui-download-prefix/src/imgui-download-stamp/imgui-download-download: imgui-download-prefix/src/imgui-download-stamp/imgui-download-mkdir
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\imgui\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Performing download step (git clone) for 'imgui-download'"
-	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external && C:\msys64\ucrt64\bin\cmake.exe -DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE -P C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/imgui/imgui-download-prefix/tmp/imgui-download-gitclone.cmake
-	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external && C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/imgui/imgui-download-prefix/src/imgui-download-stamp/imgui-download-download
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\imgui\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Performing download step (git clone) for 'imgui-download'"
+	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external && C:\msys64\ucrt64\bin\cmake.exe -DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE -P C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/imgui/imgui-download-prefix/tmp/imgui-download-gitclone.cmake
+	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external && C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/imgui/imgui-download-prefix/src/imgui-download-stamp/imgui-download-download
 
 imgui-download-prefix/src/imgui-download-stamp/imgui-download-install: imgui-download-prefix/src/imgui-download-stamp/imgui-download-build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\imgui\CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "No install step for 'imgui-download'"
-	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\build\imgui-build && C:\msys64\ucrt64\bin\cmake.exe -E echo_append
-	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\build\imgui-build && C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/imgui/imgui-download-prefix/src/imgui-download-stamp/imgui-download-install
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\imgui\CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "No install step for 'imgui-download'"
+	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\build\imgui-build && C:\msys64\ucrt64\bin\cmake.exe -E echo_append
+	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\build\imgui-build && C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/imgui/imgui-download-prefix/src/imgui-download-stamp/imgui-download-install
 
 imgui-download-prefix/src/imgui-download-stamp/imgui-download-mkdir:
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\imgui\CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Creating directories for 'imgui-download'"
-	C:\msys64\ucrt64\bin\cmake.exe -Dcfgdir= -P C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/imgui/imgui-download-prefix/tmp/imgui-download-mkdirs.cmake
-	C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/imgui/imgui-download-prefix/src/imgui-download-stamp/imgui-download-mkdir
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\imgui\CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Creating directories for 'imgui-download'"
+	C:\msys64\ucrt64\bin\cmake.exe -Dcfgdir= -P C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/imgui/imgui-download-prefix/tmp/imgui-download-mkdirs.cmake
+	C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/imgui/imgui-download-prefix/src/imgui-download-stamp/imgui-download-mkdir
 
 imgui-download-prefix/src/imgui-download-stamp/imgui-download-patch: imgui-download-prefix/src/imgui-download-stamp/imgui-download-patch-info.txt
 imgui-download-prefix/src/imgui-download-stamp/imgui-download-patch: imgui-download-prefix/src/imgui-download-stamp/imgui-download-update
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\imgui\CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "No patch step for 'imgui-download'"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\imgui\CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "No patch step for 'imgui-download'"
 	C:\msys64\ucrt64\bin\cmake.exe -E echo_append
-	C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/imgui/imgui-download-prefix/src/imgui-download-stamp/imgui-download-patch
+	C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/imgui/imgui-download-prefix/src/imgui-download-stamp/imgui-download-patch
 
 imgui-download-prefix/src/imgui-download-stamp/imgui-download-test: imgui-download-prefix/src/imgui-download-stamp/imgui-download-install
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\imgui\CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "No test step for 'imgui-download'"
-	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\build\imgui-build && C:\msys64\ucrt64\bin\cmake.exe -E echo_append
-	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\build\imgui-build && C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/imgui/imgui-download-prefix/src/imgui-download-stamp/imgui-download-test
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\imgui\CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "No test step for 'imgui-download'"
+	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\build\imgui-build && C:\msys64\ucrt64\bin\cmake.exe -E echo_append
+	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\build\imgui-build && C:\msys64\ucrt64\bin\cmake.exe -E touch C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/imgui/imgui-download-prefix/src/imgui-download-stamp/imgui-download-test
 
 imgui-download-prefix/src/imgui-download-stamp/imgui-download-update: imgui-download-prefix/tmp/imgui-download-gitupdate.cmake
 imgui-download-prefix/src/imgui-download-stamp/imgui-download-update: imgui-download-prefix/src/imgui-download-stamp/imgui-download-update-info.txt
 imgui-download-prefix/src/imgui-download-stamp/imgui-download-update: imgui-download-prefix/src/imgui-download-stamp/imgui-download-download
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\imgui\CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Performing update step for 'imgui-download'"
-	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\imgui && C:\msys64\ucrt64\bin\cmake.exe -Dcan_fetch=YES -DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE -P C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/my-project/libigl/external/.cache/imgui/imgui-download-prefix/tmp/imgui-download-gitupdate.cmake
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\imgui\CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Performing update step for 'imgui-download'"
+	cd /d C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\imgui && C:\msys64\ucrt64\bin\cmake.exe -Dcan_fetch=YES -DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE -P C:/Users/KABLA/OneDrive/Documents/InfoTelecom/IGR/IG08_CubicStylization/STYLIZATION-PROJECT/final-code/libigl/external/.cache/imgui/imgui-download-prefix/tmp/imgui-download-gitupdate.cmake
 
 CMakeFiles/imgui-download.dir/codegen:
 .PHONY : CMakeFiles/imgui-download.dir/codegen
@@ -150,6 +150,6 @@ CMakeFiles/imgui-download.dir/clean:
 .PHONY : CMakeFiles/imgui-download.dir/clean
 
 CMakeFiles/imgui-download.dir/depend:
-	$(CMAKE_COMMAND) -E cmake_depends "MinGW Makefiles" C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\imgui C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\imgui C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\imgui C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\imgui C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\my-project\libigl\external\.cache\imgui\CMakeFiles\imgui-download.dir\DependInfo.cmake "--color=$(COLOR)" imgui-download
+	$(CMAKE_COMMAND) -E cmake_depends "MinGW Makefiles" C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\imgui C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\imgui C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\imgui C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\imgui C:\Users\KABLA\OneDrive\Documents\InfoTelecom\IGR\IG08_CubicStylization\STYLIZATION-PROJECT\final-code\libigl\external\.cache\imgui\CMakeFiles\imgui-download.dir\DependInfo.cmake "--color=$(COLOR)" imgui-download
 .PHONY : CMakeFiles/imgui-download.dir/depend
 
