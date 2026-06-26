@@ -1,5 +1,8 @@
 ﻿# IGR08-InteractiveStylization
 
+ <img width="894" height="233" alt="IMG readme" src="https://github.com/user-attachments/assets/31f6b000-e0dc-43e5-ada7-9b173c4fb02b" />
+
+
 ## Project Description
 
 This project is an interactive 3D mesh stylization system developed in C++ with OpenGL and libigl.
