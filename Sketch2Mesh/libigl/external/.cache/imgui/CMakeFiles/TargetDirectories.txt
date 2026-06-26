@@ -1,3 +1,0 @@
-C:/Users/augie/OneDrive/Bureau/IGR/IGR08/IGR08-InteractiveStylization/Sketch2Mesh/libigl/external/.cache/imgui/CMakeFiles/imgui-download.dir
-C:/Users/augie/OneDrive/Bureau/IGR/IGR08/IGR08-InteractiveStylization/Sketch2Mesh/libigl/external/.cache/imgui/CMakeFiles/edit_cache.dir
-C:/Users/augie/OneDrive/Bureau/IGR/IGR08/IGR08-InteractiveStylization/Sketch2Mesh/libigl/external/.cache/imgui/CMakeFiles/rebuild_cache.dir
