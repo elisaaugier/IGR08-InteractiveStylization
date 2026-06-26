@@ -55,7 +55,7 @@ struct normal_driven_data
 	std::vector<Eigen::MatrixXd> dV, UHis;
 
 	// Eigen::SparseMatrix<double> K1, K2, Q1, Q2;
-	Eigen::SparseMatrix<double> K, Q;
+	Eigen::SparseMatrix<double> K, Q, Q0;
 	Eigen::MatrixXd N, tarN; //gaussPos, desiredN;
 	Eigen::VectorXd objValVec, A;
 
@@ -65,6 +65,8 @@ struct normal_driven_data
 	Eigen::MatrixXi AF;
 
 	double gamma = 0.05;
+	double prevgamma = 0.05;
+	double mu = 0.01;
 	SDF SDF;
 
 	igl::min_quad_with_fixed_data<double> solver_data;

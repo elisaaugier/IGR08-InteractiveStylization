@@ -103,8 +103,17 @@ void normal_driven_prim_single_iteration(
             igl::per_vertex_normals(U,F,UN);
         multi_snap_normals(UN, U, F, nEle, data);
     }
-    
-    
+
+    if (data.prevgamma != data.gamma) {
+        std::cout << "prevgamma: " << data.prevgamma << std::endl;
+        std::cout << "gamma: " << data.gamma << std::endl;
+        data.prevgamma = data.gamma;
+        SparseMatrix<double> I(data.Q.rows(), data.Q.cols());
+        I.setIdentity();
+        data.Q = data.Q0 - (data.gamma + 0.01) * I;
+        igl::min_quad_with_fixed_precompute(data.Q, data.b,SparseMatrix<double>(),false,data.solver_data);
+    }
+
     // local step
     MatrixXd RAll;
     {
@@ -165,8 +174,8 @@ void normal_driven_prim_single_iteration(
             //min_quad_with_fixed_solve(
             //    data.solver_data,Bc,bcc,VectorXd(),Uc);
             //min_quad_with_fixed_solve(data.solver_data,Bc + data.gamma * Vc,data.gamma == 0.0 ? bcc : VectorXd(),VectorXd(),Uc);
-            min_quad_with_fixed_solve(
-                data.solver_data,Bc + data.gamma * Vc + 0.01*VOc,data.gamma == 0.0 ? bcc : VectorXd(),VectorXd(),Uc);
+            //min_quad_with_fixed_solve(data.solver_data,Bc + data.gamma * Vc + 0.01*VOc,data.gamma == 0.0 ? bcc : VectorXd(),VectorXd(),Uc);
+            min_quad_with_fixed_solve(data.solver_data,Bc + data.gamma * Vc + 0.01*VOc, bcc ,VectorXd(),Uc);
             U.col(dim) = Uc;
         }
     }
