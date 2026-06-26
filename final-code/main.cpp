@@ -1334,6 +1334,38 @@ int main(int argc, char *argv[])
     // when key pressed do 
     viewer.callback_key_pressed = [&](igl::opengl::glfw::Viewer &, unsigned int key, int mod)
     {
+        auto rotate_selected_base_mesh = [&](const Eigen::Matrix3d& R) -> bool
+        {
+            if (state.selected_base_mesh_idx < 0 ||
+                state.selected_base_mesh_idx >= static_cast<int>(base_meshes.size()))
+            {
+                return false;
+            }
+
+            auto& bm = base_meshes[state.selected_base_mesh_idx];
+            bm.sV = (R * bm.sV.transpose()).transpose();
+
+            Eigen::MatrixXd rotatedV = build_style_vertices(bm);
+            if (bm.viewer_id != -1)
+            {
+                viewer.data(bm.viewer_id).set_vertices(rotatedV);
+                viewer.data(bm.viewer_id).compute_normals();
+            }
+
+            V = rotatedV;
+            F = bm.sF;
+            U = V;
+            VO = V;
+            data.V0 = V;
+
+            if (state.place_constraints && state.numCV > 0)
+            {
+                resetCV();
+            }
+
+            return true;
+        };
+
         switch(key)
         {
             case '>':
@@ -1364,6 +1396,11 @@ int main(int argc, char *argv[])
             case 'Q':
             case 'q':
             {
+                if (rotate_selected_base_mesh(Rx))
+                {
+                    draw();
+                    break;
+                }
                 U = (Rx * U.transpose()).transpose();
                 if (state.place_constraints)
                 {
@@ -1376,6 +1413,11 @@ int main(int argc, char *argv[])
             case 'W':
             case 'w':
             {
+                if (rotate_selected_base_mesh(Rx.transpose()))
+                {
+                    draw();
+                    break;
+                }
                 U = (Rx.transpose() * U.transpose()).transpose();
                 if (state.place_constraints)
                 {
@@ -1388,6 +1430,11 @@ int main(int argc, char *argv[])
             case 'A':
             case 'a':
             {
+                if (rotate_selected_base_mesh(Ry))
+                {
+                    draw();
+                    break;
+                }
                 U = (Ry * U.transpose()).transpose();
                 if (state.place_constraints)
                 {
@@ -1400,6 +1447,11 @@ int main(int argc, char *argv[])
             case 'S':
             case 's':
             {
+                if (rotate_selected_base_mesh(Ry.transpose()))
+                {
+                    draw();
+                    break;
+                }
                 U = (Ry.transpose() * U.transpose()).transpose();
                 if (state.place_constraints)
                 {
@@ -1412,6 +1464,11 @@ int main(int argc, char *argv[])
             case 'Z':
             case 'z':
             {
+                if (rotate_selected_base_mesh(Rz))
+                {
+                    draw();
+                    break;
+                }
                 U = (Rz * U.transpose()).transpose();
                 if (state.place_constraints)
                 {
@@ -1424,6 +1481,11 @@ int main(int argc, char *argv[])
             case 'X':
             case 'x':
             {
+                if (rotate_selected_base_mesh(Rz.transpose()))
+                {
+                    draw();
+                    break;
+                }
                 U = (Rz.transpose() * U.transpose()).transpose();
                 if (state.place_constraints)
                 {
