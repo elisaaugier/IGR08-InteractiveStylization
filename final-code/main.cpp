@@ -398,6 +398,59 @@ int main(int argc, char *argv[])
         return Vstyle;
     };
 
+    auto build_combined_base_mesh = [&](Eigen::MatrixXd& Vcombined, Eigen::MatrixXi& Fcombined) -> bool {
+        if (base_meshes.empty())
+        {
+            Vcombined.resize(0, 3);
+            Fcombined.resize(0, 3);
+            return false;
+        }
+
+        int totalV = 0;
+        int totalF = 0;
+        for (const auto& bm : base_meshes)
+        {
+            if (bm.sV.rows() <= 0 || bm.sF.rows() <= 0)
+            {
+                continue;
+            }
+            totalV += static_cast<int>(bm.sV.rows());
+            totalF += static_cast<int>(bm.sF.rows());
+        }
+
+        if (totalV == 0 || totalF == 0)
+        {
+            Vcombined.resize(0, 3);
+            Fcombined.resize(0, 3);
+            return false;
+        }
+
+        Vcombined.resize(totalV, 3);
+        Fcombined.resize(totalF, 3);
+
+        int vOffset = 0;
+        int fOffset = 0;
+        for (const auto& bm : base_meshes)
+        {
+            if (bm.sV.rows() <= 0 || bm.sF.rows() <= 0)
+            {
+                continue;
+            }
+
+            Eigen::MatrixXd worldV = build_style_vertices(bm);
+            const int nv = static_cast<int>(worldV.rows());
+            const int nf = static_cast<int>(bm.sF.rows());
+
+            Vcombined.block(vOffset, 0, nv, 3) = worldV;
+            Fcombined.block(fOffset, 0, nf, 3) = (bm.sF.array() + vOffset).matrix();
+
+            vOffset += nv;
+            fOffset += nf;
+        }
+
+        return true;
+    };
+
     const Eigen::RowVector4d kPrimitiveDefaultColor(0.55, 0.75, 1.00, 0.22);  // pale blue, transparent
     const Eigen::RowVector4d kPrimitiveSelectedColor(1.00, 0.92, 0.40, 0.30); // pale yellow, transparent
     const Eigen::RowVector4d kBaseMeshDefaultColor(0.72, 0.72, 0.72, 1.0);   // opaque gray
@@ -1539,20 +1592,18 @@ int main(int argc, char *argv[])
 
                 if (!state.place_constraints)
                 {
-                    // Back to idle: restore base mesh visual
+                    // Back to idle: restore all base mesh visuals
                     state.place_constraints = true;
-                    if (state.selected_base_mesh_idx >= 0 &&
-                        state.selected_base_mesh_idx < static_cast<int>(base_meshes.size()))
+                    for (auto& bm : base_meshes)
                     {
-                        auto& activeBM = base_meshes[state.selected_base_mesh_idx];
-                        MatrixXd restoreV = build_style_vertices(activeBM);
-                        if (activeBM.viewer_id != -1) {
-                            viewer.data(activeBM.viewer_id).set_vertices(restoreV);
-                            viewer.data(activeBM.viewer_id).compute_normals();
-                            viewer.data(activeBM.viewer_id).show_faces = activeBM.is_visible;
+                        MatrixXd restoreV = build_style_vertices(bm);
+                        if (bm.viewer_id != -1) {
+                            viewer.data(bm.viewer_id).set_vertices(restoreV);
+                            viewer.data(bm.viewer_id).compute_normals();
+                            viewer.data(bm.viewer_id).show_faces = bm.is_visible;
                         }
-                        state.show_base_mesh = false;
                     }
+                    state.show_base_mesh = false;
                     resetCV();
                     draw();
                     break;
@@ -1560,15 +1611,24 @@ int main(int argc, char *argv[])
 
                 // Going into optimization
                 state.place_constraints = false;
-                if (state.selected_base_mesh_idx >= 0 &&
-                    state.selected_base_mesh_idx < static_cast<int>(base_meshes.size()))
+                Eigen::MatrixXd combinedV;
+                Eigen::MatrixXi combinedF;
+                if (build_combined_base_mesh(combinedV, combinedF))
                 {
-                    auto& activeBM = base_meshes[state.selected_base_mesh_idx];
-                    MatrixXd currentV = build_style_vertices(activeBM);
-                    V = currentV; F = activeBM.sF; U = V; VO = V; data.V0 = V;
-                    // Hide base mesh visual: ARAP result shown in data_list[0]
-                    if (activeBM.viewer_id != -1)
-                        viewer.data(activeBM.viewer_id).show_faces = false;
+                    V = combinedV;
+                    F = combinedF;
+                    U = V;
+                    VO = V;
+                    data.V0 = V;
+
+                    // Hide individual layers during combined deformation preview.
+                    for (auto& bm : base_meshes)
+                    {
+                        if (bm.viewer_id != -1)
+                        {
+                            viewer.data(bm.viewer_id).show_faces = false;
+                        }
+                    }
                     state.show_base_mesh = true;
                 }
                 if (!state.place_constraints && state.CV.rows()>0)
@@ -1753,23 +1813,28 @@ int main(int argc, char *argv[])
         // add/remove constraints (right click, idle mode only)
         if (!sketchBridge.isDrawingMode() && state.place_constraints && (button == 1 || button == 2))
         {
-            // Ensure constraints are edited on the active mesh rendered by draw().
-            if (!state.show_base_mesh &&
-                state.selected_base_mesh_idx >= 0 &&
-                state.selected_base_mesh_idx < static_cast<int>(base_meshes.size()))
+            // Ensure constraints are edited on the combined base mesh domain.
+            if (!state.show_base_mesh)
             {
-                auto& activeBM = base_meshes[state.selected_base_mesh_idx];
-                Eigen::MatrixXd activeV = build_style_vertices(activeBM);
-                V = activeV;
-                F = activeBM.sF;
-                U = V;
-                VO = V;
-                data.V0 = V;
-                if (activeBM.viewer_id != -1)
+                Eigen::MatrixXd combinedV;
+                Eigen::MatrixXi combinedF;
+                if (build_combined_base_mesh(combinedV, combinedF))
                 {
-                    viewer.data(activeBM.viewer_id).show_faces = false;
+                    V = combinedV;
+                    F = combinedF;
+                    U = V;
+                    VO = V;
+                    data.V0 = V;
+
+                    for (auto& bm : base_meshes)
+                    {
+                        if (bm.viewer_id != -1)
+                        {
+                            viewer.data(bm.viewer_id).show_faces = false;
+                        }
+                    }
+                    state.show_base_mesh = true;
                 }
-                state.show_base_mesh = true;
             }
 
             if (state.hovered_constr_idx != -1)
